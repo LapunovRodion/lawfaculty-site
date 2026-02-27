@@ -41,6 +41,7 @@ Web (Next.js): http://localhost:3000
 - Deploy/local infra: `infra/README-deploy.md`
 - Security hardening: `docs/security-hardening.md`
 - Git/release workflow: `docs/git-release-workflow.md`
+- Changelog: `CHANGELOG.md`
 - Restore procedure: `runbooks/restore.md`
 - Release deploy procedure: `runbooks/release-deploy.md`
 - Rollback procedure: `runbooks/rollback.md`
