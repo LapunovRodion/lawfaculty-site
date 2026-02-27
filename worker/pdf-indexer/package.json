@@ -1,0 +1,19 @@
+{
+  "name": "pdf-indexer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Strapi webhook worker for Meilisearch indexing and PDF text extraction",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "meilisearch": "^0.51.0",
+    "pdf-parse": "^1.1.1"
+  }
+}

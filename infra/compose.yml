@@ -1,0 +1,156 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: law_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  minio:
+    image: coollabsio/minio:latest
+    container_name: law_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.7
+    container_name: law_meili
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    ports:
+      - "127.0.0.1:7700:7700"
+    volumes:
+      - meili_data:/meili_data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  strapi:
+    image: node:20
+    container_name: law_strapi
+    restart: unless-stopped
+    working_dir: /srv/strapi
+    command: sh -c "npm run develop"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      HOST: ${STRAPI_HOST}
+      PORT: ${STRAPI_PORT}
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      ADMIN_ALLOWLIST: ${ADMIN_ALLOWLIST:-127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      ADMIN_ACCESS_TOKEN: ${ADMIN_ACCESS_TOKEN:-}
+      UPLOAD_MAX_FILE_SIZE_BYTES: ${UPLOAD_MAX_FILE_SIZE_BYTES:-10485760}
+      BODY_JSON_LIMIT: ${BODY_JSON_LIMIT:-2mb}
+      BODY_FORM_LIMIT: ${BODY_FORM_LIMIT:-2mb}
+      BODY_TEXT_LIMIT: ${BODY_TEXT_LIMIT:-2mb}
+      AUDIT_LOG_ENABLED: ${AUDIT_LOG_ENABLED:-true}
+      AUDIT_LOG_SLOW_MS: ${AUDIT_LOG_SLOW_MS:-1500}
+      PREVIEW_ENABLED: ${PREVIEW_ENABLED:-true}
+      PREVIEW_FRONTEND_URL: ${PREVIEW_FRONTEND_URL:-http://localhost:3000}
+      PREVIEW_ALLOWED_ORIGINS: ${PREVIEW_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      PREVIEW_SECRET: ${PREVIEW_SECRET:-change_me_preview}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE}
+    ports:
+      - "127.0.0.1:1337:1337"
+    volumes:
+      - ../strapi:/srv/strapi
+    depends_on:
+      - postgres
+      - minio
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:1337/admin').then((r)=>process.exit(r.status < 500 ? 0 : 1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  pdf-indexer:
+    build:
+      context: ../worker/pdf-indexer
+      dockerfile: Dockerfile
+    container_name: law_pdf_indexer
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      STRAPI_URL: http://strapi:1337
+      STRAPI_PUBLIC_URL: http://strapi:1337
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      STRAPI_PAGE_SIZE: ${STRAPI_PAGE_SIZE}
+      PDF_INDEXER_WEBHOOK_SECRET: ${PDF_INDEXER_WEBHOOK_SECRET}
+      PDF_TEXT_MAX_LENGTH: ${PDF_TEXT_MAX_LENGTH}
+      FULL_REINDEX_ON_START: ${FULL_REINDEX_ON_START}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - strapi
+      - meilisearch
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:8080/health').then((r)=>process.exit(r.ok ? 0 : 1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+  minio_data:
+  meili_data:

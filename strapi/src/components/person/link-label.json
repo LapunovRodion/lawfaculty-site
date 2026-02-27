@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_person_link_labels",
+  "info": {
+    "displayName": "Link label",
+    "icon": "link"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "kind": {
+      "type": "enumeration",
+      "enum": ["scholar", "orcid", "elibrary", "scopus", "wos", "website", "other"],
+      "default": "other"
+    }
+  }
+}

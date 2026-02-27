@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_person_publications",
+  "info": {
+    "displayName": "Publication",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "year": {
+      "type": "integer"
+    },
+    "source": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "url": {
+      "type": "string"
+    }
+  }
+}

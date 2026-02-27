@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "schedules",
+  "info": {
+    "singularName": "schedule",
+    "pluralName": "schedules",
+    "displayName": "Schedule",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["files"]
+    },
+    "labels": {
+      "type": "json"
+    },
+    "submissionStatus": {
+      "type": "enumeration",
+      "enum": ["draft", "submitted", "needs_changes", "approved", "rejected", "published"],
+      "default": "draft"
+    },
+    "moderatorComment": {
+      "type": "text"
+    },
+    "authorUser": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
