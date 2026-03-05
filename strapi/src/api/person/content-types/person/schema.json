@@ -113,10 +113,8 @@
         }
       }
     },
-    "publications": {
-      "type": "component",
-      "repeatable": true,
-      "component": "person.publication",
+    "publicationsText": {
+      "type": "richtext",
       "pluginOptions": {
         "i18n": {
           "localized": true

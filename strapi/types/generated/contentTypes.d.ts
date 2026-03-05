@@ -749,7 +749,7 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
-    publications: Schema.Attribute.Component<'person.publication', true> &
+    publicationsText: Schema.Attribute.RichText &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;

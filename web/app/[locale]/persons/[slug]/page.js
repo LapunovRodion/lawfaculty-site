@@ -19,17 +19,8 @@ export default async function PersonDetailPage({ params }) {
 
   const departments = Array.isArray(person.departments) ? person.departments.filter(Boolean) : [];
   const subjects = Array.isArray(person.subjects) ? person.subjects.filter((s) => hasValue(s?.title)) : [];
-  const publications = Array.isArray(person.publications)
-    ? [...person.publications].filter((p) => hasValue(p?.title)).sort((a, b) => Number(b?.year || 0) - Number(a?.year || 0))
-    : [];
+  const publicationsText = hasValue(person.publicationsText) ? person.publicationsText : '';
   const links = Array.isArray(person.labels) ? person.labels.filter((l) => hasValue(l?.label) && hasValue(l?.url)) : [];
-
-  const sections = [
-    hasValue(person.bio) && { id: 'about', label: t.personSectionAbout },
-    subjects.length > 0 && { id: 'subjects', label: t.personSectionSubjects },
-    publications.length > 0 && { id: 'publications', label: t.personSectionPublications },
-    (hasValue(person.email) || hasValue(person.phone) || links.length > 0) && { id: 'contacts', label: t.personSectionContacts },
-  ].filter(Boolean);
 
   return (
     <article className="section-shell person-profile-shell">
@@ -56,9 +47,20 @@ export default async function PersonDetailPage({ params }) {
                 .filter(Boolean)
                 .slice(0, 2)
                 .map((part) => part[0])
-                .join('')}
+              .join('')}
             </div>
           )}
+
+          {(person.email || person.phone) ? (
+            <div className="person-photo-contacts">
+              {person.email ? (
+                <a className="person-photo-contact" href={`mailto:${person.email}`}>{person.email}</a>
+              ) : null}
+              {person.phone ? (
+                <a className="person-photo-contact" href={`tel:${String(person.phone).replace(/[^\d+]/g, '')}`}>{person.phone}</a>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         <div className="person-hero-content">
           <p className="kicker">{t.persons}</p>
@@ -112,14 +114,8 @@ export default async function PersonDetailPage({ params }) {
             ) : null}
           </div>
 
-          {(person.email || person.phone || links.length) ? (
+          {links.length ? (
             <div className="person-link-row">
-              {person.email ? (
-                <a className="utility-link" href={`mailto:${person.email}`}>{person.email}</a>
-              ) : null}
-              {person.phone ? (
-                <a className="utility-link" href={`tel:${String(person.phone).replace(/[^\d+]/g, '')}`}>{person.phone}</a>
-              ) : null}
               {links.map((link) => (
                 <a
                   key={`${person.id}-${link.url}`}
@@ -135,14 +131,6 @@ export default async function PersonDetailPage({ params }) {
           ) : null}
         </div>
       </section>
-
-      {sections.length ? (
-        <nav className="person-anchor-nav" aria-label={t.personSectionsNav}>
-          {sections.map((section) => (
-            <a key={section.id} href={`#${section.id}`}>{section.label}</a>
-          ))}
-        </nav>
-      ) : null}
 
       {hasValue(person.bio) ? (
         <section id="about" className="section-shell person-section">
@@ -171,57 +159,19 @@ export default async function PersonDetailPage({ params }) {
         </section>
       ) : null}
 
-      {publications.length ? (
+      {hasValue(publicationsText) ? (
         <section id="publications" className="section-shell person-section">
           <div className="section-header"><h2>{t.personSectionPublications}</h2></div>
-          <div className="list-stack">
-            {publications.map((pub, idx) => (
-              <article key={`${pub.title}-${idx}`} className="list-item publication-item">
-                <h3>{pub.title}</h3>
-                <p className="meta-line">
-                  {[pub.source, pub.year].filter(Boolean).join(' • ') || t.noDescription}
-                </p>
-                {pub.url ? (
-                  <a className="inline-link" href={pub.url} target="_blank" rel="noreferrer">
-                    {t.open}
-                  </a>
-                ) : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {(person.email || person.phone || links.length) ? (
-        <section id="contacts" className="section-shell person-section">
-          <div className="section-header"><h2>{t.personSectionContacts}</h2></div>
-          <div className="person-contacts-grid">
-            {person.email ? (
-              <div className="person-fact-item">
-                <span>Email</span>
-                <a href={`mailto:${person.email}`}>{person.email}</a>
-              </div>
-            ) : null}
-            {person.phone ? (
-              <div className="person-fact-item">
-                <span>{t.personFactPhone}</span>
-                <a href={`tel:${String(person.phone).replace(/[^\d+]/g, '')}`}>{person.phone}</a>
-              </div>
-            ) : null}
-          </div>
-          {links.length ? (
-            <div className="list-stack">
-              {links.map((link, idx) => (
-                <article key={`${link.url}-${idx}`} className="list-item">
-                  <h3>{link.label}</h3>
-                  <p className="meta-line">{link.kind}</p>
-                  <a className="inline-link" href={link.url} target="_blank" rel="noreferrer">
-                    {t.open}
-                  </a>
-                </article>
-              ))}
+          {looksLikeHtml(publicationsText) ? (
+            <div
+              className="prose-content"
+              dangerouslySetInnerHTML={{ __html: normalizeRichTextMediaHtml(publicationsText) }}
+            />
+          ) : (
+            <div className="prose-content">
+              {String(publicationsText).split(/\r?\n/).filter(Boolean).map((line, idx) => <p key={`pub-${idx}`}>{line}</p>)}
             </div>
-          ) : null}
+          )}
         </section>
       ) : null}
     </article>
