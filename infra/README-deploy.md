@@ -32,6 +32,28 @@ Add these values to `.env` (examples are in repo `.env.example`):
 - `BODY_JSON_LIMIT`, `BODY_FORM_LIMIT`, `BODY_TEXT_LIMIT` - request body limits
 - `AUDIT_LOG_ENABLED`, `AUDIT_LOG_SLOW_MS` - audit logging controls
 
+## Media URLs after host/IP change
+If old uploaded files still point to a previous host/IP, update `.env` and run the SQL fixer.
+
+1) Set public URL values in `/opt/law-site/.env`:
+- `PUBLIC_SERVER_URL=http://<current-host>:1337`
+- `STRAPI_URL=http://<current-host>:1337`
+
+2) Restart Strapi:
+```bash
+cd /opt/law-site/infra
+docker compose --env-file ../.env -f compose.yml restart strapi
+```
+
+3) Rewrite legacy media URLs in DB (example old -> new IP):
+```bash
+cd /opt/law-site
+docker exec -i law_postgres psql -U law_site -d law_site \
+  -v old_host='10.153.1.86' \
+  -v new_host='10.153.1.4' \
+  -f - < runbooks/fix-upload-urls.sql
+```
+
 ## Backups
 Scripts are in `infra/backup-scripts/`:
 - `pg_backup.sh` - Postgres dumps with retention
