@@ -31,7 +31,7 @@ module.exports = ({ env }) => {
     {
       name: 'strapi::cors',
       config: {
-        origin: corsOrigins.length ? corsOrigins : true,
+        origin: corsOrigins,
         credentials: true,
         keepHeaderOnError: true,
       },

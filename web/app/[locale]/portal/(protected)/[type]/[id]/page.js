@@ -8,7 +8,7 @@ import {
   getPortalTypeLabel,
   normalizeLocale,
 } from '@/lib/i18n';
-import { getMyEntry, slugify, submitEntry, updateEntry, uploadPortalFile } from '@/lib/portal';
+import { getMyEntry, submitEntry, updateEntry, uploadPortalFile, withOptionalSlug } from '@/lib/portal';
 
 const TYPES = ['news', 'materials', 'schedules'];
 const LOCKED_STATUSES = new Set(['submitted', 'approved', 'rejected', 'published']);
@@ -63,7 +63,7 @@ export default async function PortalEditPage({ params, searchParams }) {
         const title = String(formData.get('title') || '').trim();
         await updateEntry(actionSession.strapiJwt, type, id, {
           title,
-          slug: slugify(title),
+          ...withOptionalSlug(title),
           excerpt: String(formData.get('excerpt') || '').trim(),
           content: String(formData.get('content') || '').trim(),
           locale,
@@ -74,7 +74,7 @@ export default async function PortalEditPage({ params, searchParams }) {
         const title = String(formData.get('title') || '').trim();
         const payload = {
           title,
-          slug: slugify(title),
+          ...withOptionalSlug(title),
           description: String(formData.get('description') || '').trim(),
           locale,
         };

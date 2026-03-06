@@ -1,13 +1,14 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 const STRAPI_URL = (process.env.STRAPI_URL || 'http://localhost:1337').replace(/\/$/, '');
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || '';
 
 export const authOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
   },
-  secret: process.env.NEXTAUTH_SECRET || 'dev-nextauth-secret-change-me',
+  secret: NEXTAUTH_SECRET || 'dev-nextauth-secret-change-me',
   providers: [
     CredentialsProvider({
       name: 'Portal Credentials',

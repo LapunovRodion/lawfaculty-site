@@ -6,7 +6,28 @@ const TYPE_MAP = {
   schedules: 'schedules',
 };
 
+const CYRILLIC_TO_LATIN = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'i',
+  к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f',
+  х: 'h', ц: 'cz', ч: 'ch', ш: 'sh', щ: 'shh', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
+  і: 'i', ї: 'i', є: 'e', ґ: 'g', ў: 'u'
+};
+
 const normalizeType = (value) => TYPE_MAP[value] || null;
+
+const transliterate = (value) =>
+  String(value || '')
+    .split('')
+    .map((char) => {
+      const lower = char.toLowerCase();
+      if (!Object.prototype.hasOwnProperty.call(CYRILLIC_TO_LATIN, lower)) {
+        return char;
+      }
+
+      const mapped = CYRILLIC_TO_LATIN[lower];
+      return char === lower ? mapped : mapped.toUpperCase();
+    })
+    .join('');
 
 const readErrorText = async (response) => {
   try {
@@ -39,12 +60,20 @@ const strapiPortalFetch = async (path, strapiJwt, options = {}) => {
 };
 
 export const slugify = (value) =>
-  String(value || '')
+  transliterate(value)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+export const withOptionalSlug = (title) => {
+  const slug = slugify(title);
+  return slug ? { slug } : {};
+};
 
 export const listMyEntries = async (strapiJwt, limit = 100) => {
   const payload = await strapiPortalFetch(`/api/portal/my?limit=${limit}`, strapiJwt);

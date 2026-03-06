@@ -45,13 +45,29 @@ const matchesRule = (ip, rule) => {
   return ip === normalizeIp(rule);
 };
 
+const ADMIN_PATH_PREFIXES = [
+  '/admin',
+  '/content-manager',
+  '/content-type-builder',
+  '/i18n',
+  '/documentation',
+  '/upload',
+  '/history',
+  '/review-workflows',
+  '/email',
+  '/content-releases',
+];
+
+const isProtectedAdminPath = (path) =>
+  ADMIN_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+
 module.exports = (config, { strapi }) => {
   const allowlist = Array.isArray(config.allowlist) ? config.allowlist : [];
   const accessHeader = config.accessHeader || 'x-admin-access-token';
   const accessToken = String(config.accessToken || '');
 
   return async (ctx, next) => {
-    if (!ctx.path.startsWith('/admin')) {
+    if (!isProtectedAdminPath(ctx.path)) {
       return next();
     }
 

@@ -4,6 +4,10 @@ import { DEFAULT_LOCALE, normalizeLocale } from '@/lib/i18n';
 import { strapiFetch } from '@/lib/strapi';
 
 const NEWS_UID = 'api::news-item.news-item';
+const PAGE_UID = 'api::page.page';
+const MATERIAL_UID = 'api::material.material';
+const DEPARTMENT_UID = 'api::department.department';
+const PERSON_UID = 'api::person.person';
 const ALLOWED_STATUSES = new Set(['draft', 'published']);
 
 const resolveNewsPath = async ({ documentId, locale, status }) => {
@@ -25,6 +29,27 @@ const resolveNewsPath = async ({ documentId, locale, status }) => {
   }
 
   return `/${locale}/news/${item.slug}`;
+};
+
+const resolveSingleSlugPath = async ({ endpoint, documentId, locale, status, fields, toPath }) => {
+  const payload = await strapiFetch(
+    endpoint,
+    {
+      locale,
+      status,
+      'filters[documentId][$eq]': documentId,
+      'pagination[pageSize]': 1,
+      ...fields,
+    },
+    { cacheMode: 'no-store' }
+  );
+
+  const item = payload.data?.[0];
+  if (!item) {
+    return `/${locale}`;
+  }
+
+  return toPath(item, locale);
 };
 
 export async function GET(request) {
@@ -49,6 +74,46 @@ export async function GET(request) {
   let destination = `/${locale}`;
   if (uid === NEWS_UID) {
     destination = await resolveNewsPath({ documentId, locale, status });
+  } else if (uid === PAGE_UID) {
+    destination = await resolveSingleSlugPath({
+      endpoint: '/api/pages',
+      documentId,
+      locale,
+      status,
+      fields: { 'fields[0]': 'slug' },
+      toPath: (item, currentLocale) =>
+        item?.slug ? `/${currentLocale}/${item.slug}` : `/${currentLocale}`,
+    });
+  } else if (uid === MATERIAL_UID) {
+    destination = await resolveSingleSlugPath({
+      endpoint: '/api/materials',
+      documentId,
+      locale,
+      status,
+      fields: { 'fields[0]': 'slug' },
+      toPath: (item, currentLocale) =>
+        item?.slug ? `/${currentLocale}/materials/${item.slug}` : `/${currentLocale}`,
+    });
+  } else if (uid === DEPARTMENT_UID) {
+    destination = await resolveSingleSlugPath({
+      endpoint: '/api/departments',
+      documentId,
+      locale,
+      status,
+      fields: { 'fields[0]': 'slug' },
+      toPath: (item, currentLocale) =>
+        item?.slug ? `/${currentLocale}/departments/${item.slug}` : `/${currentLocale}`,
+    });
+  } else if (uid === PERSON_UID) {
+    destination = await resolveSingleSlugPath({
+      endpoint: '/api/persons',
+      documentId,
+      locale,
+      status,
+      fields: { 'fields[0]': 'slug' },
+      toPath: (item, currentLocale) =>
+        item?.slug ? `/${currentLocale}/persons/${item.slug}` : `/${currentLocale}`,
+    });
   }
 
   draftMode().enable();

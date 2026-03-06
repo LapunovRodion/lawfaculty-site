@@ -202,7 +202,6 @@ const fetchPdfText = async (entry) => {
 const buildUrlPath = (indexName, entry) => {
   const locale = getLocale(entry);
   const slug = entry.slug || entry.id;
-  const documentId = entry.documentId || entry.id;
 
   if (indexName === 'news') {
     return `/${locale}/news/${slug}`;
@@ -211,10 +210,10 @@ const buildUrlPath = (indexName, entry) => {
     return `/${locale}/${slug}`;
   }
   if (indexName === 'materials') {
-    return `/${locale}/materials/${slug}`;
+    return resolveFileUrl(entry) || `/${locale}/materials`;
   }
   if (indexName === 'persons') {
-    return `/${locale}/persons/${documentId}`;
+    return `/${locale}/persons/${slug}`;
   }
   if (indexName === 'departments') {
     return `/${locale}/departments/${slug}`;
@@ -271,14 +270,14 @@ const buildDocument = async (model, entry) => {
   }
 
   if (config.index === 'persons') {
-    const department = entry.department || {};
+    const departments = Array.isArray(entry.departments) ? entry.departments.filter(Boolean) : [];
     return {
       ...common,
       fullName: entry.fullName || '',
       position: entry.position || '',
       bioText: toPlainText(entry.bio),
-      departmentTitle: department.title || '',
-      departmentSlug: department.slug || '',
+      departmentTitle: departments.map((item) => item.title).filter(Boolean).join(', '),
+      departmentSlug: departments[0]?.slug || '',
     };
   }
 

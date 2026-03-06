@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getLabels, getPortalTypeLabel, normalizeLocale } from '@/lib/i18n';
-import { createEntry, slugify, uploadPortalFile } from '@/lib/portal';
+import { createEntry, uploadPortalFile, withOptionalSlug } from '@/lib/portal';
 
 const TYPES = ['news', 'materials', 'schedules'];
 
@@ -45,7 +45,7 @@ export default async function PortalNewPage({ params, searchParams }) {
     try {
       await createEntry(actionSession.strapiJwt, 'news', {
         title,
-        slug: slugify(title),
+        ...withOptionalSlug(title),
         excerpt,
         content,
         locale,
@@ -72,7 +72,7 @@ export default async function PortalNewPage({ params, searchParams }) {
       const fileId = await uploadPortalFile(actionSession.strapiJwt, file);
       await createEntry(actionSession.strapiJwt, 'materials', {
         title,
-        slug: slugify(title),
+        ...withOptionalSlug(title),
         description,
         file: fileId,
         locale,

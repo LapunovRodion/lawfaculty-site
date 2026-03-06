@@ -8,6 +8,47 @@ const looksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
 
 const hasValue = (value) => value !== null && value !== undefined && String(value).trim() !== '';
 
+const renderRichTextBlock = (value, keyPrefix) => {
+  if (!hasValue(value)) {
+    return null;
+  }
+
+  if (looksLikeHtml(value)) {
+    return (
+      <div
+        className="prose-content"
+        dangerouslySetInnerHTML={{ __html: normalizeRichTextMediaHtml(value) }}
+      />
+    );
+  }
+
+  return (
+    <div className="prose-content">
+      {String(value)
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .map((line, idx) => (
+          <p key={`${keyPrefix}-${idx}`}>{line}</p>
+        ))}
+    </div>
+  );
+};
+
+const PersonAccordionSection = ({ id, title, children }) => {
+  if (!children) {
+    return null;
+  }
+
+  return (
+    <details id={id} className="person-accordion">
+      <summary className="person-accordion-summary">
+        <span>{title}</span>
+      </summary>
+      <div className="person-accordion-body">{children}</div>
+    </details>
+  );
+};
+
 export default async function PersonDetailPage({ params }) {
   const locale = normalizeLocale(params.locale);
   const t = getLabels(locale);
@@ -47,11 +88,11 @@ export default async function PersonDetailPage({ params }) {
                 .filter(Boolean)
                 .slice(0, 2)
                 .map((part) => part[0])
-              .join('')}
+                .join('')}
             </div>
           )}
 
-          {(person.email || person.phone) ? (
+          {person.email || person.phone ? (
             <div className="person-photo-contacts">
               {person.email ? (
                 <a className="person-photo-contact" href={`mailto:${person.email}`}>{person.email}</a>
@@ -132,48 +173,25 @@ export default async function PersonDetailPage({ params }) {
         </div>
       </section>
 
-      {hasValue(person.bio) ? (
-        <section id="about" className="section-shell person-section">
-          <div className="section-header"><h2>{t.personSectionAbout}</h2></div>
-          {looksLikeHtml(person.bio) ? (
-            <div
-              className="prose-content"
-              dangerouslySetInnerHTML={{ __html: normalizeRichTextMediaHtml(person.bio) }}
-            />
-          ) : (
-            <div className="prose-content">
-              {String(person.bio).split(/\r?\n/).filter(Boolean).map((line, idx) => <p key={`bio-${idx}`}>{line}</p>)}
-            </div>
-          )}
-        </section>
-      ) : null}
+      <div className="person-accordion-list">
+        <PersonAccordionSection id="about" title={t.personSectionAbout}>
+          {renderRichTextBlock(person.bio, 'bio')}
+        </PersonAccordionSection>
 
-      {subjects.length ? (
-        <section id="subjects" className="section-shell person-section">
-          <div className="section-header"><h2>{t.personSectionSubjects}</h2></div>
-          <div className="chip-row">
-            {subjects.map((subject, idx) => (
-              <span key={`${subject.title}-${idx}`} className="type-badge">{subject.title}</span>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {hasValue(publicationsText) ? (
-        <section id="publications" className="section-shell person-section">
-          <div className="section-header"><h2>{t.personSectionPublications}</h2></div>
-          {looksLikeHtml(publicationsText) ? (
-            <div
-              className="prose-content"
-              dangerouslySetInnerHTML={{ __html: normalizeRichTextMediaHtml(publicationsText) }}
-            />
-          ) : (
-            <div className="prose-content">
-              {String(publicationsText).split(/\r?\n/).filter(Boolean).map((line, idx) => <p key={`pub-${idx}`}>{line}</p>)}
+        <PersonAccordionSection id="subjects" title={t.personSectionSubjects}>
+          {subjects.length ? (
+            <div className="chip-row">
+              {subjects.map((subject, idx) => (
+                <span key={`${subject.title}-${idx}`} className="type-badge">{subject.title}</span>
+              ))}
             </div>
-          )}
-        </section>
-      ) : null}
+          ) : null}
+        </PersonAccordionSection>
+
+        <PersonAccordionSection id="publications" title={t.personSectionPublications}>
+          {renderRichTextBlock(publicationsText, 'pub')}
+        </PersonAccordionSection>
+      </div>
     </article>
   );
 }

@@ -4,6 +4,8 @@ services:
     container_name: law_postgres
     restart: unless-stopped
     environment:
+      HOME: /tmp
+      XDG_CONFIG_HOME: /tmp/.config
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -31,8 +33,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:9001:9001"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
     logging:
@@ -61,9 +63,12 @@ services:
     image: node:20
     container_name: law_strapi
     restart: unless-stopped
+    user: "${HOST_UID:-1001}:${HOST_GID:-1001}"
     working_dir: /srv/strapi
     command: sh -c "npm run develop"
     environment:
+      HOME: /tmp
+      XDG_CONFIG_HOME: /tmp/.config
       NODE_ENV: ${NODE_ENV}
       HOST: ${STRAPI_HOST}
       PORT: ${STRAPI_PORT}
@@ -99,8 +104,9 @@ services:
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
     ports:
-      - "127.0.0.1:1337:1337"
+      - "0.0.0.0:1337:1337"
     volumes:
       - ../strapi:/srv/strapi
     depends_on:
@@ -135,7 +141,7 @@ services:
       PDF_TEXT_MAX_LENGTH: ${PDF_TEXT_MAX_LENGTH}
       FULL_REINDEX_ON_START: ${FULL_REINDEX_ON_START}
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:18080:8080"
     depends_on:
       - strapi
       - meilisearch

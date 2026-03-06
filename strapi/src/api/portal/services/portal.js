@@ -84,6 +84,18 @@ const pickEditablePayload = (payload, editableFields) => {
   return picked;
 };
 
+const normalizeDraftData = (data) => {
+  if (!data || typeof data !== 'object') {
+    return data;
+  }
+
+  if (typeof data.slug === 'string' && !data.slug.trim()) {
+    delete data.slug;
+  }
+
+  return data;
+};
+
 const ownerIdFromEntry = (entry) => {
   if (!entry || !entry.authorUser) {
     return null;
@@ -131,7 +143,7 @@ module.exports = ({ strapi }) => ({
     const parsedUserId = toPositiveInt(userId, 'userId');
     const { config } = getTypeConfig(type);
     const payload = getPayloadData(body);
-    const data = pickEditablePayload(payload, config.editableFields);
+    const data = normalizeDraftData(pickEditablePayload(payload, config.editableFields));
 
     data.authorUser = parsedUserId;
     data.submissionStatus = 'draft';
@@ -146,7 +158,7 @@ module.exports = ({ strapi }) => ({
     const parsedUserId = toPositiveInt(userId, 'userId');
     const { config } = getTypeConfig(type);
     const payload = getPayloadData(body);
-    const data = pickEditablePayload(payload, config.editableFields);
+    const data = normalizeDraftData(pickEditablePayload(payload, config.editableFields));
 
     const existing = await ensureOwnedEntry({
       strapi,
@@ -227,7 +239,9 @@ module.exports = ({ strapi }) => ({
         : 50;
 
     const requestedType = normalizeType(type);
-    const typesToFetch = requestedType ? [getTypeConfig(requestedType).normalized] : Object.keys(TYPE_CONFIG);
+    const typesToFetch = requestedType
+      ? [getTypeConfig(requestedType).normalized]
+      : Object.keys(TYPE_CONFIG);
     const items = [];
 
     for (const currentType of typesToFetch) {

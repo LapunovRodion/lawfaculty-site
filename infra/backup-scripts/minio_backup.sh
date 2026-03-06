@@ -37,4 +37,4 @@ else
   exit 1
 fi
 
-find "$BACKUP_DIR" -maxdepth 1 -type d -mtime +"$KEEP_DAYS" -exec rm -rf {} +
+find "$BACKUP_DIR" -mindepth 1 -maxdepth 1 -type d ! -name '.mc' -mtime +"$KEEP_DAYS" -exec rm -rf {} +

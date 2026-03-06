@@ -1,9 +1,5 @@
 import { strapiFetch } from '@/lib/strapi';
 
-const sortByName = (items = [], key) => [...items].sort((a, b) =>
-  String(a?.[key] || '').localeCompare(String(b?.[key] || ''))
-);
-
 const sortPersons = (items = []) =>
   [...items].sort((a, b) => {
     const orderDiff = Number(a?.sortOrder || 0) - Number(b?.sortOrder || 0);
@@ -30,14 +26,41 @@ export const getNewsBySlug = async (
   slug,
   { status = 'published', cacheMode, revalidateSeconds = 30 } = {}
 ) => {
-  const payload = await strapiFetch('/api/news', {
-    locale,
-    status,
-    'filters[slug][$eq]': slug,
-    'pagination[pageSize]': 1,
-    'populate[cover][fields][0]': 'url',
-    'populate[cover][fields][1]': 'alternativeText',
-  }, { cacheMode, revalidateSeconds });
+  const payload = await strapiFetch(
+    '/api/news',
+    {
+      locale,
+      status,
+      'filters[slug][$eq]': slug,
+      'pagination[pageSize]': 1,
+      'populate[cover][fields][0]': 'url',
+      'populate[cover][fields][1]': 'alternativeText',
+    },
+    { cacheMode, revalidateSeconds }
+  );
+
+  const list = payload.data || [];
+  return list[0] || null;
+};
+
+export const getPageBySlug = async (
+  locale,
+  slug,
+  { status = 'published', cacheMode, revalidateSeconds = 30 } = {}
+) => {
+  const payload = await strapiFetch(
+    '/api/pages',
+    {
+      locale,
+      status,
+      'filters[slug][$eq]': slug,
+      'pagination[pageSize]': 1,
+      'fields[0]': 'title',
+      'fields[1]': 'slug',
+      'fields[2]': 'content',
+    },
+    { cacheMode, revalidateSeconds }
+  );
 
   const list = payload.data || [];
   return list[0] || null;

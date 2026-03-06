@@ -7,21 +7,31 @@ const normalizeHits = (index, hits = []) =>
   hits.map((hit) => ({
     id: `${index}:${hit.id}`,
     type: index,
-    title:
-      hit.title ||
-      hit.fullName ||
-      hit.slug ||
-      hit.documentId ||
-      hit.id,
-    excerpt:
-      hit.excerpt ||
-      hit.description ||
-      hit.position ||
-      hit.departmentTitle ||
-      '',
+    title: hit.title || hit.fullName || hit.slug || hit.documentId || hit.id,
+    excerpt: hit.excerpt || hit.description || hit.position || hit.departmentTitle || '',
     urlPath: hit.urlPath || null,
     locale: hit.locale || 'ru',
   }));
+
+const searchIndex = async (index, q, locale, headers) => {
+  const response = await fetch(`${MEILI_URL}/indexes/${index}/search`, {
+    method: 'POST',
+    headers,
+    cache: 'no-store',
+    body: JSON.stringify({
+      q,
+      limit: 5,
+      filter: [`locale = \"${locale}\"`],
+    }),
+  });
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const payload = await response.json();
+  return normalizeHits(index, payload.hits || []);
+};
 
 export const searchSite = async (query, locale) => {
   const q = String(query || '').trim();
@@ -34,26 +44,9 @@ export const searchSite = async (query, locale) => {
     headers.Authorization = `Bearer ${MEILI_SEARCH_KEY}`;
   }
 
-  const allHits = [];
-  for (const index of SEARCH_INDEXES) {
-    const response = await fetch(`${MEILI_URL}/indexes/${index}/search`, {
-      method: 'POST',
-      headers,
-      cache: 'no-store',
-      body: JSON.stringify({
-        q,
-        limit: 5,
-        filter: [`locale = \"${locale}\"`],
-      }),
-    });
+  const results = await Promise.allSettled(
+    SEARCH_INDEXES.map((index) => searchIndex(index, q, locale, headers))
+  );
 
-    if (!response.ok) {
-      continue;
-    }
-
-    const payload = await response.json();
-    allHits.push(...normalizeHits(index, payload.hits || []));
-  }
-
-  return allHits;
+  return results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
 };
