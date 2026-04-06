@@ -9,6 +9,20 @@ const sortPersons = (items = []) =>
     return String(a?.fullName || '').localeCompare(String(b?.fullName || ''));
   });
 
+const sortDepartmentPeople = (items = []) =>
+  [...items].sort((a, b) => {
+    const aHead = a?.isHead ? 0 : 1;
+    const bHead = b?.isHead ? 0 : 1;
+    if (aHead !== bHead) {
+      return aHead - bHead;
+    }
+    const orderDiff = Number(a?.sortOrder || 0) - Number(b?.sortOrder || 0);
+    if (orderDiff !== 0) {
+      return orderDiff;
+    }
+    return String(a?.fullName || '').localeCompare(String(b?.fullName || ''));
+  });
+
 export const getNewsList = async (locale, pageSize = 12) => {
   const payload = await strapiFetch('/api/news', {
     locale,
@@ -84,8 +98,12 @@ export const getDepartments = async (locale, pageSize = 50) => {
     'pagination[pageSize]': pageSize,
     'fields[0]': 'title',
     'fields[1]': 'slug',
-    'fields[2]': 'description',
-    'fields[3]': 'contacts',
+    'fields[2]': 'tagline',
+    'fields[3]': 'overview',
+    'fields[4]': 'description',
+    'fields[5]': 'contacts',
+    'populate[heroImage][fields][0]': 'url',
+    'populate[heroImage][fields][1]': 'alternativeText',
   });
   return payload.data || [];
 };
@@ -96,6 +114,34 @@ export const getDepartmentBySlug = async (locale, slug) => {
     status: 'published',
     'filters[slug][$eq]': slug,
     'pagination[pageSize]': 1,
+    'fields[0]': 'title',
+    'fields[1]': 'slug',
+    'fields[2]': 'tagline',
+    'fields[3]': 'overview',
+    'fields[4]': 'description',
+    'fields[5]': 'history',
+    'fields[6]': 'teachingSummary',
+    'fields[7]': 'researchSummary',
+    'fields[8]': 'headNote',
+    'fields[9]': 'contacts',
+    'fields[10]': 'address',
+    'fields[11]': 'office',
+    'fields[12]': 'phone',
+    'fields[13]': 'email',
+    'populate[heroImage][fields][0]': 'url',
+    'populate[heroImage][fields][1]': 'alternativeText',
+    'populate[keyFacts][fields][0]': 'label',
+    'populate[keyFacts][fields][1]': 'value',
+    'populate[disciplines][fields][0]': 'title',
+    'populate[disciplines][fields][1]': 'details',
+    'populate[usefulLinks][fields][0]': 'title',
+    'populate[usefulLinks][fields][1]': 'url',
+    'populate[usefulLinks][fields][2]': 'description',
+    'populate[documents][fields][0]': 'title',
+    'populate[documents][fields][1]': 'description',
+    'populate[documents][populate][file][fields][0]': 'url',
+    'populate[documents][populate][file][fields][1]': 'alternativeText',
+    'populate[documents][populate][file][fields][2]': 'name',
     'populate[persons][fields][0]': 'fullName',
     'populate[persons][fields][1]': 'slug',
     'populate[persons][fields][2]': 'position',
@@ -116,6 +162,7 @@ export const getDepartmentBySlug = async (locale, slug) => {
     'populate[persons][populate][labels][fields][0]': 'label',
     'populate[persons][populate][labels][fields][1]': 'url',
     'populate[persons][populate][labels][fields][2]': 'kind',
+    'populate[extraSections][on][department.rich-section][populate]': '*',
   });
 
   const item = (payload.data || [])[0] || null;
@@ -125,7 +172,7 @@ export const getDepartmentBySlug = async (locale, slug) => {
 
   return {
     ...item,
-    persons: sortPersons(item.persons || []),
+    persons: sortDepartmentPeople(item.persons || []),
   };
 };
 

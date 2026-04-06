@@ -17,19 +17,14 @@ export default async function DepartmentsPage({ params }) {
       {departments.length === 0 ? (
         <p className="empty-state">{t.departmentsEmpty}</p>
       ) : (
-        <div className="card-grid">
+        <div className="card-grid department-list-grid-simple">
           {departments.map((item) => (
-            <article key={item.id} className="card">
+            <article key={item.id} className="card department-list-card-simple">
               <h2>
                 <Link className="card-title-link" href={`/${locale}/departments/${item.slug}`}>
                   {item.title}
                 </Link>
               </h2>
-              <p>{item.description || t.noDescription}</p>
-              <p className="meta-line">{item.contacts || t.noContacts}</p>
-              <Link className="inline-link" href={`/${locale}/departments/${item.slug}`}>
-                {t.open}
-              </Link>
             </article>
           ))}
         </div>

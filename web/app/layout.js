@@ -1,15 +1,18 @@
-import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
+import { Manrope, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
 
-const headingFont = Space_Grotesk({
-  subsets: ['latin'],
+const headingFont = Manrope({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['500', '600', '700', '800'],
   variable: '--font-heading',
+  display: 'swap',
 });
 
-const bodyFont = Cormorant_Garamond({
+const bodyFont = Source_Serif_4({
   subsets: ['latin', 'cyrillic'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-body',
+  display: 'swap',
 });
 
 export const metadata = {
