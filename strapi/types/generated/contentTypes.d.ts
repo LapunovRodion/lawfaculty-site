@@ -511,6 +511,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::department.department'
     >;
+    materials: Schema.Attribute.Relation<'oneToMany', 'api::material.material'>;
     office: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -594,6 +595,11 @@ export interface ApiMaterialMaterial extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    department: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::department.department'
+    > &
+      Schema.Attribute.Required;
     description: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

@@ -24,8 +24,8 @@ const INDEX_SETTINGS = {
     sortableAttributes: ['updatedAt', 'publishedAt'],
   },
   materials: {
-    searchableAttributes: ['title', 'description', 'pdfText'],
-    filterableAttributes: ['locale', 'model', 'publishedAt'],
+    searchableAttributes: ['title', 'description', 'departmentTitle', 'pdfText'],
+    filterableAttributes: ['locale', 'model', 'publishedAt', 'departmentSlug'],
     sortableAttributes: ['updatedAt', 'publishedAt'],
   },
   persons: {
@@ -57,7 +57,7 @@ const requiredEnv = (name) => {
 };
 
 const PORT = Number.parseInt(env('PORT', '8080'), 10);
-const WEBHOOK_SECRET = env('PDF_INDEXER_WEBHOOK_SECRET', '');
+const WEBHOOK_SECRET = requiredEnv('PDF_INDEXER_WEBHOOK_SECRET');
 const STRAPI_URL = requiredEnv('STRAPI_URL').replace(/\/+$/, '');
 const STRAPI_API_TOKEN = env('STRAPI_API_TOKEN', '');
 const STRAPI_PUBLIC_URL = env('STRAPI_PUBLIC_URL', STRAPI_URL).replace(/\/+$/, '');
@@ -116,6 +116,8 @@ const fetchJson = async (url, options = {}) => {
 
   return response.json();
 };
+
+const hasValidWebhookSecret = (req) => req.headers['x-webhook-secret'] === WEBHOOK_SECRET;
 
 const fetchStrapiCollectionPage = async (config, page) => {
   const queryString = createQueryString({
@@ -259,11 +261,14 @@ const buildDocument = async (model, entry) => {
   }
 
   if (config.index === 'materials') {
+    const department = entry.department || null;
     return {
       ...common,
       title: entry.title || '',
       slug: entry.slug || '',
       description: entry.description || '',
+      departmentTitle: department?.title || '',
+      departmentSlug: department?.slug || '',
       fileUrl: resolveFileUrl(entry),
       pdfText: await fetchPdfText(entry),
     };
@@ -393,11 +398,8 @@ app.get('/health', (_req, res) => {
 
 app.post('/webhooks/strapi', async (req, res) => {
   try {
-    if (WEBHOOK_SECRET) {
-      const received = req.headers['x-webhook-secret'];
-      if (received !== WEBHOOK_SECRET) {
-        return res.status(401).json({ error: 'invalid webhook secret' });
-      }
+    if (!hasValidWebhookSecret(req)) {
+      return res.status(401).json({ error: 'invalid webhook secret' });
     }
 
     const payload = req.body || {};
@@ -428,6 +430,10 @@ app.post('/webhooks/strapi', async (req, res) => {
 
 app.post('/reindex', async (req, res) => {
   try {
+    if (!hasValidWebhookSecret(req)) {
+      return res.status(401).json({ error: 'invalid webhook secret' });
+    }
+
     const types = String(req.query.types || '').trim();
     if (!types) {
       await reindexAll();

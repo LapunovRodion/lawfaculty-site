@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { getDepartments } from '@/lib/content';
 import {
   getLabels,
   getPortalStatusLabel,
@@ -49,6 +50,7 @@ export default async function PortalEditPage({ params, searchParams }) {
   }
 
   const locked = LOCKED_STATUSES.has(entry.submissionStatus);
+  const departments = type === 'materials' ? await getDepartments(locale, 100) : [];
 
   async function updateAction(formData) {
     'use server';
@@ -76,6 +78,7 @@ export default async function PortalEditPage({ params, searchParams }) {
           title,
           ...withOptionalSlug(title),
           description: String(formData.get('description') || '').trim(),
+          department: Number(formData.get('department')),
           locale,
         };
 
@@ -188,6 +191,24 @@ export default async function PortalEditPage({ params, searchParams }) {
               defaultValue={entry.description || ''}
               disabled={locked}
             />
+
+            <label htmlFor="department">{t.portalLabelDepartment}</label>
+            <select
+              id="department"
+              name="department"
+              required
+              defaultValue={entry.department?.id || ''}
+              disabled={locked}
+            >
+              <option value="" disabled>
+                {t.portalSelectDepartment}
+              </option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.title}
+                </option>
+              ))}
+            </select>
 
             <label htmlFor="file">{t.portalLabelReplaceFile}</label>
             <input id="file" name="file" type="file" disabled={locked} />

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { getDepartments } from '@/lib/content';
 import { getLabels, getPortalTypeLabel, normalizeLocale } from '@/lib/i18n';
 import { createEntry, uploadPortalFile, withOptionalSlug } from '@/lib/portal';
 
@@ -29,6 +30,8 @@ export default async function PortalNewPage({ params, searchParams }) {
   if (!session?.strapiJwt) {
     redirect(`/${locale}/portal/login?next=/${locale}/portal/new`);
   }
+
+  const departments = selectedType === 'materials' ? await getDepartments(locale, 100) : [];
 
   async function createNewsAction(formData) {
     'use server';
@@ -66,6 +69,7 @@ export default async function PortalNewPage({ params, searchParams }) {
 
     const title = String(formData.get('title') || '').trim();
     const description = String(formData.get('description') || '').trim();
+    const department = Number(formData.get('department'));
     const file = formData.get('file');
 
     try {
@@ -74,6 +78,7 @@ export default async function PortalNewPage({ params, searchParams }) {
         title,
         ...withOptionalSlug(title),
         description,
+        department,
         file: fileId,
         locale,
       });
@@ -152,6 +157,18 @@ export default async function PortalNewPage({ params, searchParams }) {
 
           <label htmlFor="description">{t.portalLabelDescription}</label>
           <textarea id="description" name="description" rows={5} />
+
+          <label htmlFor="department">{t.portalLabelDepartment}</label>
+          <select id="department" name="department" required defaultValue="">
+            <option value="" disabled>
+              {t.portalSelectDepartment}
+            </option>
+            {departments.map((department) => (
+              <option key={department.id} value={department.id}>
+                {department.title}
+              </option>
+            ))}
+          </select>
 
           <label htmlFor="file">{t.portalLabelFile}</label>
           <input id="file" name="file" type="file" required />

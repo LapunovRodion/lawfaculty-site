@@ -86,6 +86,11 @@ export const getMaterials = async (locale, pageSize = 24) => {
     status: 'published',
     sort: 'updatedAt:desc',
     'pagination[pageSize]': pageSize,
+    'populate[file][fields][0]': 'url',
+    'populate[file][fields][1]': 'name',
+    'populate[file][fields][2]': 'alternativeText',
+    'populate[department][fields][0]': 'title',
+    'populate[department][fields][1]': 'slug',
   });
   return payload.data || [];
 };

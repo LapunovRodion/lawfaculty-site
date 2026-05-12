@@ -1,229 +1,123 @@
-# Roadmap: сайт юридического факультета (Next.js + Strapi 5)
+# Roadmap: Law Faculty Site
 
-## Цели проекта
-- Публичный сайт: новости, страницы, кафедры, материалы/документы, расписание, поиск (в т.ч. по PDF), мультиязычие.
-- Личный кабинет на сайте: “предложка” (создание/редактирование/отправка на модерацию), статусы, комментарии модератора.
-- Админка Strapi: модерация и публикация, управление контентом, ролями, локалями.
-- Инфра: свой сервер, безопасность, бэкапы, аудит.
+## Current Goal
+Prepare the site for real content and the next feature phase before public launch.
 
----
+Primary goals:
+- migrate selected content from `https://law.bsu.by`;
+- move 10 latest news items first;
+- migrate departments and personal staff pages;
+- migrate selected methodological materials and bind each material to one department;
+- replace placeholders with real content or hide incomplete blocks;
+- add full schedule entities instead of file-only schedules;
+- design auto-translation for `be` and `en` from the `ru` source locale;
+- improve public UI for content-heavy pages.
 
-## Принятые решения (фикс)
-- Архитектура: Next.js (публичный сайт + кабинет) + Strapi 5 + PostgreSQL.
-- Предложка: **в личном кабинете на сайте**, а не в админке Strapi.
-- Поиск: отдельный сервис (Meilisearch/Typesense) + индексация PDF.
-- Хранение файлов: S3-совместимое (MinIO) на своём сервере.
-- Многоязычие: через i18n Strapi (локали).
-- Репозиторий: GitHub (моно-репо: `web/`, `strapi/`, `infra/`, `worker/`, `docs/`).
+## Fixed Decisions
+- Stack: Next.js + Strapi 5 + PostgreSQL + MinIO + Meilisearch.
+- Default/source locale: `ru`.
+- Target locales: `ru`, `be`, `en`.
+- Old site source: `https://law.bsu.by`.
+- News migration scope: 10 latest news items.
+- Methodological material belongs to exactly one department.
+- Schedule must be modeled as structured entities, not just uploaded files.
+- Portal remains the place for authenticated users to submit news, materials, and schedule changes for moderation.
 
-## Вопросы, требующие согласования (позже)
-- Редактор/верстка страниц (2.8): rich-text vs блоки-конструктор в кабинете.
-- Авторизация: Strapi Users&Permissions + NextAuth (старт) vs Keycloak (усиление).
-- Расписание: файлы (старт) vs сущности/фильтрация (позже).
-- OCR для сканов PDF: нужен ли, и когда.
+## Phase 1 - Documentation And Model Freeze
+- [ ] Update documentation for current architecture and launch scope.
+- [ ] Define structured schedule entities and relations.
+- [ ] Define content migration workflow from the old site.
+- [ ] Define auto-translation workflow and provider abstraction.
+- [ ] Confirm placeholder cleanup rules.
 
----
-
-## Этап 1 — Репозиторий + инфраструктура (базовый стенд)
-### 1.1 GitHub
-- [ ] Создать репозиторий на GitHub (моно-репо).
-- [ ] Настроить базовую структуру:
-  - [ ] `web/` (Next.js: публичный сайт + кабинет)
-  - [ ] `strapi/` (Strapi 5 проект)
-  - [ ] `infra/` (docker-compose, reverse proxy, скрипты)
-  - [ ] `worker/` (pdf-indexer)
-  - [ ] `docs/` (документация)
-- [ ] Добавить `.gitignore`, шаблон `.env.example`, `README.md`.
-- [ ] Включить защиту ветки `main` (минимум: PR-only).
-- [ ] (Опционально) GitHub Actions:
-  - [ ] линтер/типизация для `web/`
-  - [ ] сборка контейнеров (без деплоя) / проверки
-
-### 1.2 Развёртывание Docker Compose на сервере
-- [ ] Развернуть Docker Compose:
-  - [ ] `postgres`
-  - [ ] `strapi`
-  - [ ] `minio`
-  - [ ] `search` (Meilisearch или Typesense)
-  - [ ] `caddy`/`nginx` (TLS, роутинг)
-- [ ] Для разработки: доступ локально (LAN/localhost), без публичного домена.
-- [ ] Настроить окружения `.env` и секреты (не хранить в репозитории).
-- [ ] Настроить базовые бэкапы:
-  - [ ] Postgres (dump + ротация)
-  - [ ] MinIO (sync/backup + ротация)
-  - [ ] конфиги (compose, env, reverse-proxy)
-- [ ] Настроить мониторинг минимум:
-  - [ ] healthchecks контейнеров
-  - [ ] логи (journald / docker logs)
-
-**Артефакты:**
-- `infra/compose.yml`
-- `infra/backup-scripts/`
-- `infra/README-deploy.md`
-
----
-
-## Этап 2 — Strapi: контент-модель, локали, роли
-### 2.1 Локали
-- [ ] Включить i18n, добавить локали (ru/be/en).
-- [ ] Определить “главную” локаль по умолчанию.
-
-### 2.2 Content Types (минимум для MVP)
-- [ ] `News`
-- [ ] `Page`
-- [ ] `Department`
-- [ ] `Person`
-- [ ] `Material` / `Document`
-- [ ] `Schedule` (как файл + метки)
-
-### 2.3 Статусы предложки (workflow без Enterprise)
-- [ ] Поля статуса:
-  - [ ] `submissionStatus`: draft/submitted/needs_changes/approved/rejected/published
-  - [ ] `moderatorComment` (текст)
-  - [ ] `authorUser` (связь с пользователем кабинета)
-- [ ] Включить Draft & Publish там, где нужно.
-
-### 2.4 Роли и права (RBAC)
-- [ ] Роль **PortalUser** (пользователь кабинета):
-  - [ ] create/update только “своё”
-  - [ ] submit на проверку
-  - [ ] читать комментарии/статусы
-  - [ ] НЕ может publish
-- [ ] Роль **Moderator** (админка Strapi):
-  - [ ] читать “submitted”
-  - [ ] менять статусы
-  - [ ] редактировать, публиковать
-- [ ] Ограничить доступ к админке Strapi (только модераторы).
-
-**Артефакты:**
+Artifacts:
+- `docs/content-migration-plan.md`
+- `docs/schedule-model.md`
+- `docs/i18n-autotranslation.md`
 - `docs/strapi-content-model.md`
-- `docs/roles-and-permissions.md`
-
----
-
-## Этап 3 — API “предложки” (кабинет → Strapi)
-- [ ] Реализовать кастомные маршруты Strapi: `/api/portal/*`
-  - [ ] `POST /portal/news` (создать черновик)
-  - [ ] `PUT /portal/news/:id` (редактировать своё)
-  - [ ] `POST /portal/news/:id/submit` (отправить на модерацию)
-  - [ ] `GET /portal/my` (список “моих предложений”)
-  - [ ] аналогично для `materials`, `schedule`
-- [ ] Policies/guards:
-  - [ ] проверка JWT пользователя кабинета
-  - [ ] проверка владельца записи (authorUser == currentUser)
-  - [ ] запрет редактирования после `submitted` (или по правилам)
-- [ ] Поддержка загрузки файлов (через Strapi upload + MinIO).
-
-**Артефакты:**
 - `docs/portal-api.md`
-- `strapi/src/api/portal/*` (код)
 
----
+## Phase 2 - Content Migration From Old Site
+- [ ] Build a read-only inventory of old site sections.
+- [ ] Create migration map: old URL -> Strapi content type -> new route.
+- [ ] Migrate 10 latest news items.
+- [ ] Migrate departments.
+- [ ] Migrate personal staff pages.
+- [ ] Migrate selected methodological materials.
+- [ ] Upload remote images/files into Strapi/MinIO instead of hotlinking.
+- [ ] Preserve source URLs in migration notes for audit and redirect planning.
+- [ ] Reindex migrated content in Meilisearch.
 
-## Этап 4 — Поиск + индексация PDF
-- [ ] Выбрать движок: Meilisearch или Typesense (зафиксировать).
-- [ ] Схема индекса:
-  - [ ] `news`
-  - [ ] `pages`
-  - [ ] `materials` (+ extracted text)
-  - [ ] `persons`, `departments`
-- [ ] Реализовать воркер `pdf-indexer`:
-  - [ ] слушает события загрузки/обновления документов
-  - [ ] вытаскивает текст из PDF (pdftotext/парсер)
-  - [ ] кладёт текст в `materials` индекс
-- [ ] (Опционально, позже) OCR для сканов.
+Notes:
+- Current environment reports an SSL chain issue for `law.bsu.by`; migration tooling should first try normal TLS and allow a documented local fallback for read-only import if CA trust is unavailable.
+- Imported content starts in `ru`; generated translations stay draft until reviewed.
 
-**Артефакты:**
-- `docs/search-architecture.md`
-- `worker/pdf-indexer/`
+## Phase 3 - Structured Schedule
+- [ ] Replace file-only schedule workflow with structured entities.
+- [ ] Add public schedule routes and filters.
+- [ ] Add portal workflow for schedule submissions/changes.
+- [ ] Add moderation workflow for schedule entries.
+- [ ] Index schedule entries if needed for global search.
 
----
+Minimum entities:
+- `ScheduleTerm`
+- `StudyGroup`
+- `Subject`
+- `Classroom`
+- `ScheduleEntry`
 
-## Этап 5 — Next.js: публичный сайт (MVP)
-- [ ] Базовый каркас страниц:
-  - [ ] Главная
-  - [ ] Новости (листинг + детальная)
-  - [ ] Разделы/страницы (`Page`)
-  - [ ] Кафедры (`Department`) + сотрудники (`Person`)
-  - [ ] Материалы/документы (`Material`)
-  - [ ] Расписание (`Schedule`)
-  - [ ] Поиск (единая строка + выдача)
-- [ ] Многоязычие на фронте:
-  - [ ] роутинг локалей (пример: `/ru/...`, `/en/...`)
-  - [ ] подгрузка нужной локали из Strapi
-- [ ] Кэширование/производительность:
-  - [ ] ISR/SSR стратегия для страниц/новостей
-- [ ] Доступность и базовая UX-полировка.
+Optional later entities:
+- `ScheduleChangeRequest`
+- `ScheduleImportBatch`
 
-**Артефакты:**
-- `web/` (Next.js проект)
-- `docs/frontend-routing-i18n.md`
+## Phase 4 - Auto-Translation
+- [ ] Implement provider-agnostic translation service interface.
+- [ ] Add glossary for university/legal terms.
+- [ ] Protect non-translatable tokens: names, emails, phones, URLs, file names.
+- [ ] Generate `be` and `en` localizations from `ru` as drafts.
+- [ ] Add moderation/review checklist before publishing translations.
 
----
+Provider is not selected yet. Candidate providers:
+- DeepL
+- Google Translate
+- Yandex Translate
+- OpenAI-compatible LLM
 
-## Этап 6 — Next.js: личный кабинет (предложка)
-- [ ] Авторизация (стартовый вариант):
-  - [ ] NextAuth + Strapi Users&Permissions (JWT)
-- [ ] Страницы кабинета:
-  - [ ] Вход/выход
-  - [ ] Мои предложения (таблица: тип, заголовок, статус, дата, комментарий)
-  - [ ] Создать предложение (новость/материал/расписание)
-  - [ ] Редактирование предложения
-  - [ ] Отправить на модерацию
-- [ ] UX статусов:
-  - [ ] подсветка “needs_changes”
-  - [ ] просмотр комментариев модератора
-- [ ] Ограничения:
-  - [ ] запрет правок после submit (или по правилам)
-  - [ ] лимиты файлов/типов
+## Phase 5 - Placeholder Cleanup
+- [ ] Replace footer contacts and links with real values.
+- [ ] Replace placeholder department contacts.
+- [ ] Remove `#` links or hide incomplete actions.
+- [ ] Remove example/test text from public pages.
+- [ ] Keep empty-state messages only for legitimately empty content sections.
 
-**Артефакты:**
-- `docs/portal-ux.md`
-- `web/app/portal/*`
+## Phase 6 - UI Improvement
+- [ ] Improve materials page: department filter, file metadata, clearer cards.
+- [ ] Improve departments page: contacts, staff, materials, visual hierarchy.
+- [ ] Improve staff pages: profile layout, publications, linked departments.
+- [ ] Add schedule UI: weekly/table view, filters, mobile layout.
+- [ ] Improve home page with real news, schedule, departments, and materials entry points.
+- [ ] Verify responsive behavior on mobile and desktop.
 
----
+## Phase 7 - Verification And Launch Readiness
+- [ ] `npm run build` for `web`.
+- [ ] Syntax checks for worker and Strapi custom code.
+- [ ] Docker compose health checks.
+- [ ] Smoke test public routes:
+  - `/ru`
+  - `/ru/news`
+  - `/ru/departments`
+  - `/ru/persons`
+  - `/ru/materials`
+  - `/ru/schedule`
+  - `/ru/search`
+  - `/ru/portal`
+- [ ] Smoke test portal create/edit/submit flows.
+- [ ] Run manual reindex for migrated content.
+- [ ] Check for public 404/500 errors.
 
-## Этап 7 — Безопасность и эксплуатация (hardening)
-- [ ] Закрыть админку Strapi:
-  - [ ] VPN или IP allowlist (или оба)
-- [ ] Настроить строгие CORS/headers.
-- [ ] Ограничить upload:
-  - [ ] типы файлов
-  - [ ] размер
-  - [ ] антивирус (опционально)
-- [ ] Аудит действий:
-  - [ ] логирование действий модераторов
-  - [ ] логирование входов
-- [ ] Ротация секретов и доступов.
-- [ ] Политика бэкапов + тест восстановления.
-
-**Артефакты:**
-- `docs/security-hardening.md`
-- `runbooks/restore.md`
-
----
-
-## Этап 8 — Контент и запуск
-*(Примечание: до этого этапа проект живёт локально/внутри сети. Публичный домен и внешний доступ настраиваются только перед релизом.)*
-
-- [ ] Наполнение базовыми страницами (факультет/кафедры/контакты).
-- [ ] Перенос “части информации” вручную (без миграции базы).
-- [ ] Прогон сценариев:
-  - [ ] создание предложения → submit → модерация → публикация
-  - [ ] поиск по сайту
-  - [ ] поиск по PDF
-  - [ ] мультиязычие
-- [ ] Релиз:
-  - [ ] переключение DNS
-  - [ ] мониторинг ошибок
-  - [ ] регламент поддержки
-
----
-
-## Backlog (после MVP)
-- [ ] Keycloak (SSO/2FA/политики) вместо простого JWT (если нужно).
-- [ ] OCR для сканов PDF.
-- [ ] “Умное расписание” (группы/фильтры/пары) вместо файлов.
-- [ ] Улучшение конструктора “красивых страниц” (если нужен в кабинете).
-- [ ] Расширенная аналитика/метрики.
-- [ ] Версионирование документов.
+## Backlog
+- OCR for scanned PDFs.
+- SSO/2FA via Keycloak or another identity provider.
+- Bulk schedule import from XLSX/CSV.
+- Redirect map from old URLs to new routes.
+- Analytics and content freshness dashboards.

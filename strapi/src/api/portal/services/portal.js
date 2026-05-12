@@ -11,8 +11,9 @@ const TYPE_CONFIG = {
   },
   materials: {
     uid: 'api::material.material',
-    editableFields: ['title', 'slug', 'description', 'file', 'locale'],
+    editableFields: ['title', 'slug', 'description', 'file', 'department', 'locale'],
     mediaFields: ['file'],
+    relationFields: ['department'],
     summaryField: 'title',
   },
   schedules: {
@@ -209,7 +210,8 @@ module.exports = ({ strapi }) => ({
     const { config } = getTypeConfig(type);
 
     const scalarEditableFields = config.editableFields.filter(
-      (field) => !(config.mediaFields || []).includes(field)
+      (field) =>
+        !(config.mediaFields || []).includes(field) && !(config.relationFields || []).includes(field)
     );
     const fields = [
       ...new Set([...scalarEditableFields, 'id', 'submissionStatus', 'moderatorComment', 'locale']),
@@ -220,6 +222,12 @@ module.exports = ({ strapi }) => ({
         fields: ['id', 'name', 'url', 'mime', 'ext'],
       };
     }
+    const relationPopulate = {};
+    for (const relationField of config.relationFields || []) {
+      relationPopulate[relationField] = {
+        fields: ['id', 'title', 'slug'],
+      };
+    }
 
     return ensureOwnedEntry({
       strapi,
@@ -227,7 +235,10 @@ module.exports = ({ strapi }) => ({
       id: parsedId,
       userId: parsedUserId,
       fields,
-      populate: mediaPopulate,
+      populate: {
+        ...mediaPopulate,
+        ...relationPopulate,
+      },
     });
   },
 
@@ -265,6 +276,15 @@ module.exports = ({ strapi }) => ({
           updatedAt: 'desc',
         },
         publicationState: 'preview',
+        populate: {
+          ...(currentConfig.relationFields || []).includes('department')
+            ? {
+                department: {
+                  fields: ['id', 'title', 'slug'],
+                },
+              }
+            : {},
+        },
         limit: parsedLimit,
       });
 
@@ -276,6 +296,7 @@ module.exports = ({ strapi }) => ({
           submissionStatus: entry.submissionStatus,
           moderatorComment: entry.moderatorComment || null,
           locale: entry.locale || null,
+          department: entry.department || null,
           publishedAt: entry.publishedAt || null,
           updatedAt: entry.updatedAt || null,
         });

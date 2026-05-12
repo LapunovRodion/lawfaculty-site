@@ -49,6 +49,13 @@
       "required": true,
       "allowedTypes": ["files"]
     },
+    "department": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::department.department",
+      "inversedBy": "materials",
+      "required": true
+    },
     "submissionStatus": {
       "type": "enumeration",
       "enum": ["draft", "submitted", "needs_changes", "approved", "rejected", "published"],

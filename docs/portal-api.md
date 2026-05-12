@@ -1,6 +1,6 @@
-# Portal API (Stage 3)
+# Portal API
 
-Custom endpoints for "suggestion flow" from personal cabinet to Strapi moderation.
+Custom endpoints for submissions from the personal cabinet to Strapi moderation.
 
 Base URL: `/api/portal`
 
@@ -8,7 +8,7 @@ Base URL: `/api/portal`
 - All endpoints require JWT from `users-permissions`.
 - Send header: `Authorization: Bearer <jwt>`.
 
-## Workflow rules
+## Workflow Rules
 - Record owner is set automatically: `authorUser = current user`.
 - On create, `submissionStatus = draft`.
 - User can edit only own entries.
@@ -16,13 +16,11 @@ Base URL: `/api/portal`
 - Submit transition: `draft|needs_changes -> submitted`.
 - User cannot publish.
 
-## Endpoints
-
-### News
-- `POST /news` - create draft
-- `GET /news/:id` - get own draft
-- `PUT /news/:id` - update own draft
-- `POST /news/:id/submit` - send to moderation
+## News Endpoints
+- `POST /news` - create draft.
+- `GET /news/:id` - get own draft.
+- `PUT /news/:id` - update own draft.
+- `POST /news/:id/submit` - send to moderation.
 
 Payload:
 ```json
@@ -38,11 +36,11 @@ Payload:
 }
 ```
 
-### Materials
-- `POST /materials` - create draft
-- `GET /materials/:id` - get own draft
-- `PUT /materials/:id` - update own draft
-- `POST /materials/:id/submit` - send to moderation
+## Material Endpoints
+- `POST /materials` - create draft.
+- `GET /materials/:id` - get own draft.
+- `PUT /materials/:id` - update own draft.
+- `POST /materials/:id/submit` - send to moderation.
 
 Payload:
 ```json
@@ -52,37 +50,33 @@ Payload:
     "slug": "document-title",
     "description": "Description",
     "file": 321,
+    "department": 12,
     "locale": "ru"
   }
 }
 ```
 
-### Schedules
-- `POST /schedules` - create draft
-- `GET /schedules/:id` - get own draft
-- `PUT /schedules/:id` - update own draft
-- `POST /schedules/:id/submit` - send to moderation
+Rules:
+- `department` is required;
+- `department` points to exactly one `Department`;
+- uploaded files use Strapi upload and MinIO storage.
 
-Payload:
-```json
-{
-  "data": {
-    "title": "Schedule week 1",
-    "file": 555,
-    "labels": {
-      "semester": "spring",
-      "course": "1"
-    },
-    "locale": "ru"
-  }
-}
-```
+## Schedule Endpoints
+Current code still exposes legacy schedule draft endpoints:
+- `POST /schedules`
+- `GET /schedules/:id`
+- `PUT /schedules/:id`
+- `POST /schedules/:id/submit`
 
-### My entries
-- `GET /my` - get my entries for all supported types.
+These endpoints should be replaced or expanded when structured schedule entities are implemented.
+
+Target structured schedule payload is defined in `docs/schedule-model.md`.
+
+## My Entries
+- `GET /my` - get my entries for all supported submission types.
 - Optional query params:
-  - `type`: `news`, `materials`, `schedules` (also accepts `material`, `schedule`)
-  - `limit`: max `200` (default `50`)
+  - `type`: `news`, `materials`, `schedules` (also accepts `material`, `schedule`).
+  - `limit`: max `200` (default `50`).
 
 Response:
 ```json
@@ -90,12 +84,17 @@ Response:
   "data": {
     "items": [
       {
-        "type": "news",
+        "type": "materials",
         "id": 1,
-        "title": "My news",
+        "title": "Document title",
         "submissionStatus": "submitted",
         "moderatorComment": null,
         "locale": "ru",
+        "department": {
+          "id": 12,
+          "title": "Department title",
+          "slug": "department-title"
+        },
         "publishedAt": null,
         "updatedAt": "2026-02-16T00:00:00.000Z"
       }
@@ -106,7 +105,7 @@ Response:
 }
 ```
 
-## Role setup (PortalUser)
+## Role Setup (PortalUser)
 In Strapi admin, allow these actions for role `PortalUser`:
 - `api::portal.portal.createNews`
 - `api::portal.portal.getNews`
@@ -122,5 +121,7 @@ In Strapi admin, allow these actions for role `PortalUser`:
 - `api::portal.portal.submitSchedule`
 - `api::portal.portal.my`
 
-If portal users should upload media directly, also allow:
+If portal users upload media directly, also allow:
 - `plugin::upload.content-api.upload`
+
+When structured schedule endpoints are added, update this role checklist with the new handlers.

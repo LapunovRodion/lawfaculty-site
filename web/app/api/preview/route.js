@@ -55,7 +55,11 @@ const resolveSingleSlugPath = async ({ endpoint, documentId, locale, status, fie
 export async function GET(request) {
   const url = new URL(request.url);
   const secret = url.searchParams.get('secret') || '';
-  const expectedSecret = process.env.PREVIEW_SECRET || 'change_me_preview';
+  const expectedSecret = process.env.PREVIEW_SECRET;
+
+  if (!expectedSecret) {
+    return NextResponse.json({ error: 'Preview is not configured' }, { status: 503 });
+  }
 
   if (secret !== expectedSecret) {
     return NextResponse.json({ error: 'Invalid preview secret' }, { status: 401 });

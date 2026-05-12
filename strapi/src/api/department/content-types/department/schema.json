@@ -181,6 +181,12 @@
       "relation": "manyToMany",
       "target": "api::person.person",
       "mappedBy": "departments"
+    },
+    "materials": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::material.material",
+      "mappedBy": "department"
     }
   }
 }
