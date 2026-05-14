@@ -24,11 +24,11 @@ Primary goals:
 - Portal remains the place for authenticated users to submit news, materials, and schedule changes for moderation.
 
 ## Phase 1 - Documentation And Model Freeze
-- [ ] Update documentation for current architecture and launch scope.
-- [ ] Define structured schedule entities and relations.
-- [ ] Define content migration workflow from the old site.
-- [ ] Define auto-translation workflow and provider abstraction.
-- [ ] Confirm placeholder cleanup rules.
+- [x] Update documentation for current architecture and launch scope.
+- [x] Define structured schedule entities and relations.
+- [x] Define content migration workflow from the old site.
+- [x] Define auto-translation workflow and provider abstraction.
+- [x] Confirm placeholder cleanup rules.
 
 Artifacts:
 - `docs/content-migration-plan.md`
@@ -38,10 +38,10 @@ Artifacts:
 - `docs/portal-api.md`
 
 ## Phase 2 - Content Migration From Old Site
-- [ ] Build a read-only inventory of old site sections.
-- [ ] Create migration map: old URL -> Strapi content type -> new route.
-- [ ] Migrate 10 latest news items.
-- [ ] Migrate departments.
+- [x] Build a read-only inventory of old site sections.
+- [x] Create migration map: old URL -> Strapi content type -> new route.
+- [x] Migrate 10 latest news items.
+- [x] Migrate departments.
 - [ ] Migrate personal staff pages.
 - [ ] Migrate selected methodological materials.
 - [ ] Upload remote images/files into Strapi/MinIO instead of hotlinking.
@@ -49,6 +49,10 @@ Artifacts:
 - [ ] Reindex migrated content in Meilisearch.
 
 Notes:
+- Read-only inventory artifact: `docs/old-site-inventory.md`.
+- Initial migration map artifact: `docs/migration-map.md`.
+- 10 latest news items imported into Strapi as `ru` drafts for editorial review.
+- 14 department pages imported into Strapi as `ru` drafts for editorial review.
 - Current environment reports an SSL chain issue for `law.bsu.by`; migration tooling should first try normal TLS and allow a documented local fallback for read-only import if CA trust is unavailable.
 - Imported content starts in `ru`; generated translations stay draft until reviewed.
 

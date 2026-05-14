@@ -753,6 +753,16 @@ b {
   max-height: 470px;
 }
 
+.news-extra-section {
+  margin-top: 2rem;
+}
+
+.news-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -1663,5 +1673,722 @@ b {
   .department-staff-photo {
     width: 74px;
     height: 74px;
+  }
+}
+
+.department-page-academic {
+  gap: 1rem;
+}
+
+.department-academic-shell {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 70%, transparent);
+  border-radius: 28px;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 12%, transparent) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 8%, transparent) 0 1px, transparent 1px 100%),
+    color-mix(in srgb, var(--color-surface-strong) 94%, transparent);
+  background-size: 42px 42px;
+}
+
+.department-academic-hero,
+.department-academic-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.72fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.department-academic-hero {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.department-academic-intro {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.department-academic-intro h1 {
+  max-width: 13ch;
+  font-size: clamp(2.15rem, 5.4vw, 4.6rem);
+}
+
+.department-academic-contact-card {
+  align-self: stretch;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.department-academic-facts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.department-academic-facts .department-fact-card {
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, var(--color-surface-strong));
+}
+
+.department-academic-facts .department-fact-card strong {
+  color: var(--color-accent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  line-height: 1.12;
+}
+
+.department-academic-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+.department-card-heading {
+  display: grid;
+  justify-content: stretch;
+  gap: 0.25rem;
+}
+
+.department-academic-discipline-list {
+  grid-template-columns: 1fr;
+}
+
+.department-page-academic .department-side-column {
+  gap: 1rem;
+}
+
+.department-page-academic .department-discipline-card,
+.department-page-academic .department-resource-card {
+  align-content: start;
+  gap: 0.48rem;
+  padding: 0.92rem;
+  border-radius: 16px;
+}
+
+.department-page-academic .department-discipline-card h3,
+.department-page-academic .department-resource-card h3 {
+  font-size: 1rem;
+  line-height: 1.34;
+  letter-spacing: -0.005em;
+  overflow-wrap: anywhere;
+}
+
+.department-page-academic .department-discipline-card p,
+.department-page-academic .department-resource-card p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.58;
+}
+
+.department-page-academic .department-resource-list {
+  gap: 0.68rem;
+}
+
+.department-page-academic .department-resource-card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-strong) 96%, transparent), color-mix(in srgb, var(--color-accent-soft) 24%, var(--color-surface-strong)));
+}
+
+.department-page-academic .department-resource-section {
+  display: grid;
+  gap: 0.78rem;
+}
+
+.department-page-academic .department-resource-section .department-card-heading {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.7rem;
+}
+
+.department-page-academic .department-resource-section .department-card-heading h2 {
+  font-size: clamp(1.18rem, 1.8vw, 1.42rem);
+}
+
+.department-page-academic .department-resource-card .inline-link {
+  margin-top: 0.12rem;
+  font-size: var(--font-size-caption);
+}
+
+.department-academic-actions {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.department-academic-staff-section {
+  border-radius: 24px;
+}
+
+.department-page-academic .prose-content a,
+.department-page-academic .department-resource-card,
+.department-page-academic .department-contact-item a {
+  overflow-wrap: anywhere;
+}
+
+.department-page-academic .prose-content img {
+  float: none !important;
+  display: block;
+  width: min(100%, 560px) !important;
+  height: auto !important;
+  margin: 0.5rem 0 1rem !important;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--color-accent-soft) 40%, var(--color-surface-strong));
+}
+
+@media (max-width: 1023px) {
+  .department-academic-hero,
+  .department-academic-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .department-academic-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .department-academic-intro h1 {
+    max-width: none;
+  }
+
+  .department-academic-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.template-preview-page,
+.dept-concept,
+.concept-content-stack,
+.concept-side-stack,
+.concept-material-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.template-preview-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+  gap: 1rem;
+  align-items: start;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  background: color-mix(in srgb, var(--color-surface-strong) 90%, transparent);
+}
+
+.template-preview-intro p:not(.kicker) {
+  color: var(--color-text-muted);
+  max-width: 68ch;
+}
+
+.template-switcher {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.template-switcher a {
+  display: grid;
+  gap: 0.08rem;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 0.75rem 0.85rem;
+  text-decoration: none;
+  background: var(--color-surface-strong);
+}
+
+.template-switcher a.active {
+  border-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent-soft), var(--color-surface-strong));
+}
+
+.template-switcher span,
+.concept-contact-row span,
+.concept-fact span,
+.concept-landing-panel span,
+.concept-editorial-label span {
+  color: var(--color-text-muted);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+}
+
+.dept-concept {
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+.concept-lead {
+  max-width: 70ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lead);
+  line-height: 1.72;
+}
+
+.concept-academic {
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 70%, transparent);
+  padding: clamp(1rem, 3vw, 1.6rem);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 12%, transparent) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 8%, transparent) 0 1px, transparent 1px 100%),
+    color-mix(in srgb, var(--color-surface-strong) 94%, transparent);
+  background-size: 42px 42px;
+}
+
+.concept-academic-hero,
+.concept-two-column,
+.concept-editorial-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.72fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.concept-academic-hero {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.concept-academic h1,
+.concept-landing h1,
+.concept-editorial h1 {
+  max-width: 12ch;
+  font-size: clamp(2.15rem, 5.4vw, 4.6rem);
+}
+
+.concept-paper-section,
+.concept-contact-card,
+.concept-portrait-card,
+.concept-editorial-card,
+.concept-glass-card {
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--color-surface-strong) 92%, transparent);
+  padding: clamp(1rem, 2vw, 1.28rem);
+}
+
+.concept-paper-section {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.concept-paper-section p,
+.concept-glass-card p,
+.concept-editorial-card p,
+.concept-feature-section p,
+.concept-landing-copy p,
+.concept-split-band p,
+.concept-portrait-card p,
+.concept-person-card p {
+  color: var(--color-text-muted);
+}
+
+.concept-paper-section.slim h2,
+.concept-contact-card h2,
+.concept-portrait-card h2,
+.concept-editorial-card h2,
+.concept-glass-card h2 {
+  font-size: clamp(1.22rem, 2vw, 1.5rem);
+}
+
+.concept-contact-card,
+.concept-portrait-card {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.concept-contact-card.compact {
+  align-self: stretch;
+}
+
+.concept-contact-row {
+  display: grid;
+  gap: 0.1rem;
+  padding-top: 0.62rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.concept-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.concept-fact {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 0.88rem;
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, var(--color-surface-strong));
+}
+
+.concept-fact strong {
+  color: var(--color-accent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1;
+}
+
+.concept-clean-list,
+.concept-clean-list li {
+  margin: 0;
+}
+
+.concept-clean-list {
+  display: grid;
+  gap: 0.42rem;
+  padding-left: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+.concept-bottom-actions,
+.concept-section-heading {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.concept-staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.72rem;
+}
+
+.concept-person-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.72rem;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 0.82rem;
+  background: var(--color-surface-strong);
+}
+
+.concept-person-card h3 {
+  font-size: 1.05rem;
+}
+
+.concept-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--button-text);
+  background: var(--color-accent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-weight: 800;
+}
+
+.concept-avatar.large {
+  width: 78px;
+  height: 78px;
+  font-size: 2rem;
+}
+
+.concept-landing {
+  padding: clamp(1rem, 2.6vw, 1.45rem);
+  background:
+    radial-gradient(circle at 86% 8%, rgba(91, 153, 226, 0.26), transparent 30%),
+    radial-gradient(circle at 8% 28%, rgba(214, 177, 92, 0.24), transparent 28%),
+    linear-gradient(135deg, #081a33, #123a70 52%, #0b2445);
+  color: #f3f7ff;
+}
+
+.concept-landing .kicker,
+.concept-landing h1,
+.concept-landing h2,
+.concept-landing h3 {
+  color: #f3f7ff;
+}
+
+.concept-landing-hero {
+  min-height: 520px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.72fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.concept-landing-copy {
+  display: grid;
+  gap: 1rem;
+  max-width: 780px;
+}
+
+.concept-landing-copy p,
+.concept-landing .concept-feature-section p,
+.concept-landing .concept-glass-card p,
+.concept-landing .concept-split-band p {
+  color: rgba(235, 242, 255, 0.82);
+}
+
+.concept-landing-panel {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(222, 234, 255, 0.35);
+  border-radius: 28px;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.concept-landing-panel strong {
+  max-width: 12ch;
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3.1rem);
+  line-height: 1.02;
+}
+
+.concept-landing .concept-facts.floating {
+  margin-top: -3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.concept-landing .concept-fact,
+.concept-glass-card,
+.concept-feature-section,
+.concept-split-band {
+  border: 1px solid rgba(222, 234, 255, 0.3);
+  background: rgba(255, 255, 255, 0.11);
+  backdrop-filter: blur(10px);
+}
+
+.concept-landing .concept-fact strong,
+.concept-landing .concept-fact span {
+  color: #f3f7ff;
+}
+
+.concept-feature-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  border-radius: 28px;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.concept-feature-section h2 {
+  font-size: clamp(1.65rem, 3vw, 2.55rem);
+}
+
+.concept-card-mosaic {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1rem;
+}
+
+.concept-glass-card {
+  min-height: 230px;
+  display: grid;
+  gap: 0.72rem;
+  align-content: end;
+}
+
+.concept-glass-card.wide {
+  grid-row: span 2;
+  min-height: 476px;
+}
+
+.concept-glass-card.dark {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.concept-split-band {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+  gap: 1rem;
+  border-radius: 28px;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.concept-discipline-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.58rem;
+  align-content: flex-start;
+}
+
+.concept-discipline-cloud span,
+.concept-material-list a {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.42rem 0.76rem;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--color-surface-strong) 82%, transparent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+.concept-landing .concept-discipline-cloud span,
+.concept-landing .concept-material-list a {
+  color: #f3f7ff;
+  border-color: rgba(222, 234, 255, 0.36);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.concept-two-column.compact {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.62fr);
+}
+
+.concept-editorial {
+  padding: clamp(1rem, 2.6vw, 1.55rem);
+  border: 1px solid var(--color-border);
+  background:
+    linear-gradient(90deg, transparent 0 calc(100% - 1px), color-mix(in srgb, var(--color-border) 42%, transparent) calc(100% - 1px) 100%),
+    color-mix(in srgb, var(--color-surface-strong) 94%, transparent);
+  background-size: calc(100% / 12) 100%;
+}
+
+.concept-editorial-hero {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.18fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: end;
+  min-height: 380px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1.2rem;
+}
+
+.concept-editorial-index {
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+  min-height: 100%;
+  border-right: 1px solid var(--color-border);
+  padding-right: 1rem;
+}
+
+.concept-editorial-index span {
+  color: var(--color-accent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.concept-anchor-nav {
+  display: flex;
+  gap: 0.58rem;
+  flex-wrap: wrap;
+}
+
+.concept-anchor-nav a {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.42rem 0.78rem;
+  text-decoration: none;
+  background: var(--color-surface-strong);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-weight: 700;
+}
+
+.concept-editorial-about {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 26px;
+  padding: clamp(1rem, 3vw, 1.55rem);
+  background: linear-gradient(135deg, var(--color-accent-soft), var(--color-surface-strong));
+}
+
+.concept-editorial-label {
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+}
+
+.concept-editorial-label strong {
+  color: var(--color-accent);
+  font-family: var(--font-heading), 'Segoe UI', sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  line-height: 1;
+}
+
+.concept-editorial-text {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.concept-editorial-text h2 {
+  max-width: 18ch;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+}
+
+.concept-editorial-text p {
+  max-width: 72ch;
+  color: var(--color-text-muted);
+}
+
+.concept-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.concept-editorial-card {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  min-height: 260px;
+}
+
+.concept-editorial-card.strong {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 72%, var(--color-surface-strong)), var(--color-surface-strong));
+}
+
+@media (max-width: 1023px) {
+  .template-preview-intro,
+  .concept-academic-hero,
+  .concept-two-column,
+  .concept-editorial-split,
+  .concept-landing-hero,
+  .concept-feature-section,
+  .concept-card-mosaic,
+  .concept-split-band,
+  .concept-editorial-about,
+  .concept-editorial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .concept-landing .concept-facts.floating {
+    margin-top: 0;
+  }
+
+  .concept-glass-card.wide {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 700px) {
+  .concept-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .concept-editorial-hero,
+  .concept-person-card {
+    grid-template-columns: 1fr;
+  }
+
+  .concept-editorial-index {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 0 0.8rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .concept-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .concept-academic h1,
+  .concept-landing h1,
+  .concept-editorial h1 {
+    max-width: none;
   }
 }

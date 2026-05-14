@@ -14,9 +14,9 @@ const MODEL_CONFIG = {
 
 const INDEX_SETTINGS = {
   news: {
-    searchableAttributes: ['title', 'excerpt', 'contentText'],
-    filterableAttributes: ['locale', 'model', 'publishedAt'],
-    sortableAttributes: ['updatedAt', 'publishedAt'],
+    searchableAttributes: ['title', 'excerpt', 'contentText', 'category', 'departmentTitle'],
+    filterableAttributes: ['locale', 'model', 'publishedAt', 'displayDate', 'category', 'departmentSlug', 'isFeatured'],
+    sortableAttributes: ['updatedAt', 'publishedAt', 'displayDate'],
   },
   pages: {
     searchableAttributes: ['title', 'contentText'],
@@ -242,12 +242,19 @@ const buildDocument = async (model, entry) => {
   };
 
   if (config.index === 'news') {
+    const department = entry.department || null;
     return {
       ...common,
       title: entry.title || '',
       slug: entry.slug || '',
       excerpt: entry.excerpt || '',
       contentText: toPlainText(entry.content),
+      displayDate: entry.displayDate || entry.publishedAt || null,
+      category: entry.category || '',
+      departmentTitle: department?.title || '',
+      departmentSlug: department?.slug || '',
+      isFeatured: Boolean(entry.isFeatured),
+      sourceUrl: entry.sourceUrl || '',
     };
   }
 

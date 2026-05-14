@@ -19,9 +19,19 @@ User-submitted content uses these fields:
 - `excerpt` (text, i18n).
 - `content` (richtext, i18n).
 - `cover` (media: image).
+- `gallery` (media: multiple images).
+- `attachments` (media: multiple files).
+- `displayDate` (datetime): editorial/public date shown on the website and used for sorting.
+- `category` (enum): `faculty`, `department`, `education`, `science`, `student_life`, `event`, `announcement`, `other`.
+- `department` (many-to-one -> Department, optional).
+- `isFeatured` (boolean).
+- `sourceUrl` (text): old site URL or external source for audit.
+- `sourceCategory` (string): old site category/path label for migration notes.
 - shared moderation fields.
 
 Internal naming: singularName `news-item`, pluralName `news`.
+
+Editorial template: `docs/news-content-template.md`.
 
 ### Page
 - `title` (string, i18n).
@@ -51,6 +61,9 @@ Internal naming: singularName `news-item`, pluralName `news`.
 - `extraSections` (dynamic zone: `department.rich-section`).
 - `persons` (many-to-many -> Person, mapped by `departments`).
 - `materials` (one-to-many -> Material, mapped by `department`).
+- `news` (one-to-many -> News, mapped by `department`).
+- `sourceUrl` (text): old site URL or external source for audit.
+- `sourceCategory` (string): old site section/path label for migration notes.
 
 ### Person
 - `fullName` (string, i18n).

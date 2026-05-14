@@ -11,7 +11,7 @@
 - `minio` - file storage for PDF/material files.
 
 ## Indexes
-- `news`
+- `news` (includes `category`, `departmentTitle`, `departmentSlug`, `displayDate`, `isFeatured`)
 - `pages`
 - `materials` (includes `pdfText`, `departmentTitle`, `departmentSlug`)
 - `persons`

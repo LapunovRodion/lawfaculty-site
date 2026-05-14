@@ -7,6 +7,7 @@ import { getStrapiMediaUrl, normalizeRichTextMediaHtml } from '@/lib/strapi';
 
 const looksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
 const MARKDOWN_IMAGE_RE = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+const getNewsDate = (item) => item.displayDate || item.publishedAt || item.updatedAt;
 
 const renderTextContent = (raw, fallbackAlt) => {
   const lines = String(raw || '').split(/\r?\n/);
@@ -72,9 +73,7 @@ export default async function NewsDetailPage({ params }) {
   if (!item) {
     notFound();
   }
-  const publishedLabel = item.publishedAt || item.updatedAt
-    ? new Date(item.publishedAt || item.updatedAt).toLocaleDateString(locale)
-    : '';
+  const publishedLabel = getNewsDate(item) ? new Date(getNewsDate(item)).toLocaleDateString(locale) : '';
 
   return (
     <article className="prose-block">
@@ -94,6 +93,7 @@ export default async function NewsDetailPage({ params }) {
       <p className="meta-line">
         {t.newsMeta}
         {publishedLabel ? ` • ${publishedLabel}` : ''}
+        {item.department?.title ? ` • ${t.newsDepartment}: ${item.department.title}` : ''}
       </p>
       <h1>{item.title}</h1>
       {item.cover?.url ? (
@@ -112,6 +112,33 @@ export default async function NewsDetailPage({ params }) {
       ) : (
         <div className="prose-content">{renderTextContent(item.content, item.title)}</div>
       )}
+      {item.gallery?.length ? (
+        <section className="news-extra-section">
+          <h2>{t.newsGallery}</h2>
+          <div className="news-gallery-grid">
+            {item.gallery.map((image) => (
+              <img
+                key={image.id || image.url}
+                className="news-cover"
+                src={getStrapiMediaUrl(image.url)}
+                alt={image.alternativeText || item.title}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+      {item.attachments?.length ? (
+        <section className="news-extra-section">
+          <h2>{t.newsAttachments}</h2>
+          <ul>
+            {item.attachments.map((file) => (
+              <li key={file.id || file.url}>
+                <a href={getStrapiMediaUrl(file.url)}>{file.name || file.alternativeText || file.url}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </article>
   );
 }

@@ -27,10 +27,13 @@ export const getNewsList = async (locale, pageSize = 12) => {
   const payload = await strapiFetch('/api/news', {
     locale,
     status: 'published',
-    sort: 'publishedAt:desc',
+    'sort[0]': 'displayDate:desc',
+    'sort[1]': 'publishedAt:desc',
     'pagination[pageSize]': pageSize,
     'populate[cover][fields][0]': 'url',
     'populate[cover][fields][1]': 'alternativeText',
+    'populate[department][fields][0]': 'title',
+    'populate[department][fields][1]': 'slug',
   });
   return payload.data || [];
 };
@@ -49,6 +52,13 @@ export const getNewsBySlug = async (
       'pagination[pageSize]': 1,
       'populate[cover][fields][0]': 'url',
       'populate[cover][fields][1]': 'alternativeText',
+      'populate[gallery][fields][0]': 'url',
+      'populate[gallery][fields][1]': 'alternativeText',
+      'populate[attachments][fields][0]': 'url',
+      'populate[attachments][fields][1]': 'name',
+      'populate[attachments][fields][2]': 'alternativeText',
+      'populate[department][fields][0]': 'title',
+      'populate[department][fields][1]': 'slug',
     },
     { cacheMode, revalidateSeconds }
   );
@@ -167,6 +177,12 @@ export const getDepartmentBySlug = async (locale, slug) => {
     'populate[persons][populate][labels][fields][0]': 'label',
     'populate[persons][populate][labels][fields][1]': 'url',
     'populate[persons][populate][labels][fields][2]': 'kind',
+    'populate[materials][fields][0]': 'title',
+    'populate[materials][fields][1]': 'slug',
+    'populate[materials][fields][2]': 'description',
+    'populate[materials][populate][file][fields][0]': 'url',
+    'populate[materials][populate][file][fields][1]': 'name',
+    'populate[materials][populate][file][fields][2]': 'alternativeText',
     'populate[extraSections][on][department.rich-section][populate]': '*',
   });
 

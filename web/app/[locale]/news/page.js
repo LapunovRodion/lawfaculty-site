@@ -3,6 +3,8 @@ import { getNewsList } from '@/lib/content';
 import { getLabels, normalizeLocale } from '@/lib/i18n';
 import { getStrapiMediaUrl } from '@/lib/strapi';
 
+const getNewsDate = (item) => item.displayDate || item.publishedAt || item.updatedAt;
+
 export async function generateMetadata({ params }) {
   const locale = normalizeLocale(params.locale);
   const t = getLabels(locale);
@@ -62,7 +64,8 @@ export default async function NewsPage({ params, searchParams }) {
                 />
               ) : null}
               <p className="meta-line">
-                {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString(locale) : ''}
+                {getNewsDate(item) ? new Date(getNewsDate(item)).toLocaleDateString(locale) : ''}
+                {item.department?.title ? ` • ${item.department.title}` : ''}
               </p>
               <h2>
                 <Link href={`/${locale}/news/${item.slug}`}>{item.title}</Link>

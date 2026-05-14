@@ -78,6 +78,54 @@ const buildContactItems = (department, t) => {
   return items;
 };
 
+const buildLinkGroups = (links = [], t) => {
+  const groups = {
+    programs: {
+      title: t.departmentSectionPrograms,
+      intro: t.departmentSectionProgramsIntro,
+      items: [],
+    },
+    documents: {
+      title: t.departmentSectionDocuments,
+      intro: t.departmentSectionDocumentsIntro,
+      items: [],
+    },
+    postgraduate: {
+      title: t.departmentSectionPostgraduate,
+      intro: t.departmentSectionPostgraduateIntro,
+      items: [],
+    },
+    links: {
+      title: t.departmentSectionLinks,
+      intro: t.departmentSectionLinksIntro,
+      items: [],
+    },
+  };
+
+  links.forEach((item) => {
+    const text = `${item?.title || ''} ${item?.description || ''} ${item?.url || ''}`.toLowerCase();
+
+    if (/аспиран|12\.00|postgraduate|doctoral/.test(text)) {
+      groups.postgraduate.items.push(item);
+      return;
+    }
+
+    if (/тематика|\.(docx?|xlsx?|pdf)(\?|$)|документ|file|questions/.test(text)) {
+      groups.documents.items.push(item);
+      return;
+    }
+
+    if (/дисциплин|магистрат|правоведение|экономическое право|политология|program|course/.test(text)) {
+      groups.programs.items.push(item);
+      return;
+    }
+
+    groups.links.items.push(item);
+  });
+
+  return Object.values(groups).filter((group) => group.items.length);
+};
+
 export default async function DepartmentDetailPage({ params }) {
   const locale = normalizeLocale(params.locale);
   const t = getLabels(locale);
@@ -91,10 +139,10 @@ export default async function DepartmentDetailPage({ params }) {
   const staff = head
     ? department.persons.filter((person) => person?.id !== head.id)
     : department.persons || [];
-  const heroImage = getStrapiMediaUrl(department.heroImage?.url);
   const contactItems = buildContactItems(department, t);
   const aboutContent = department.history || department.description;
   const extraSections = Array.isArray(department.extraSections) ? department.extraSections : [];
+  const materials = Array.isArray(department.materials) ? department.materials : [];
   const overview =
     department.overview ||
     stripHtml(department.history || department.description).slice(0, 260) ||
@@ -102,9 +150,16 @@ export default async function DepartmentDetailPage({ params }) {
   const facts = department.keyFacts?.length
     ? department.keyFacts.filter((item) => hasValue(item?.label) && hasValue(item?.value))
     : buildFallbackFacts(department, t, head);
+  const linkGroups = buildLinkGroups(department.usefulLinks || [], t);
+  const hasContacts = contactItems.length || hasValue(department.contacts);
+  const hasHead = head || hasValue(department.headNote);
+  const hasDisciplines = Boolean(department.disciplines?.length);
+  const hasLinks = Boolean(linkGroups.length);
+  const hasDocuments = Boolean(department.documents?.length || materials.length);
+  const hasSideContent = hasHead || hasDisciplines || hasLinks || hasDocuments;
 
   return (
-    <article className="department-page">
+    <article className="department-page department-page-academic">
       <div className="breadcrumbs">
         <Link href={`/${locale}`}>{t.home}</Link>
         <span>{t.breadcrumbsSeparator}</span>
@@ -113,58 +168,18 @@ export default async function DepartmentDetailPage({ params }) {
         <span>{department.title}</span>
       </div>
 
-      <section className="department-hero department-hero-simple">
-        <div className="department-hero-copy">
-          <p className="kicker">{t.departments}</p>
-          <h1>{department.title}</h1>
-          {hasValue(department.tagline) ? <p className="department-tagline">{department.tagline}</p> : null}
-          <p className="department-overview">{overview}</p>
-
-          {facts.length ? (
-            <div className="department-facts-grid">
-              {facts.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="department-fact-card">
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="department-hero-actions">
-            {department.email ? (
-              <a className="button-primary" href={`mailto:${department.email}`}>
-                {t.departmentContactAction}
-              </a>
-            ) : null}
-            {department.persons?.length ? (
-              <a className="button-secondary" href="#department-staff">
-                {t.departmentEmployeesTitle}
-              </a>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="department-hero-side">
-          <div className="department-hero-visual department-hero-visual-compact">
-            {heroImage ? (
-              <img
-                className="department-hero-image department-hero-image-compact"
-                src={heroImage}
-                alt={department.heroImage?.alternativeText || department.title}
-              />
-            ) : (
-              <div className="department-hero-placeholder department-hero-image-compact">
-                {department.title.slice(0, 1)}
-              </div>
-            )}
+      <section className="department-academic-shell">
+        <div className="department-academic-hero">
+          <div className="department-academic-intro">
+            <p className="kicker">{t.departments}</p>
+            <h1>{department.title}</h1>
+            {hasValue(department.tagline) ? <p className="department-tagline">{department.tagline}</p> : null}
+            <p className="department-overview">{overview}</p>
           </div>
 
-          {contactItems.length || hasValue(department.contacts) ? (
-            <aside className="department-contact-card">
-              <div className="section-header">
-                <h2>{t.footerContacts}</h2>
-              </div>
+          {hasContacts ? (
+            <aside className="department-contact-card department-academic-contact-card">
+              <p className="kicker">{t.footerContacts}</p>
               {contactItems.length ? (
                 <div className="department-contact-list">
                   {contactItems.map((item) => (
@@ -180,152 +195,198 @@ export default async function DepartmentDetailPage({ params }) {
             </aside>
           ) : null}
         </div>
-      </section>
 
-      <div className="department-main-column">
-        {hasValue(aboutContent) ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionAbout}</h2>
-            </div>
-            {renderRichBlock(aboutContent)}
-          </section>
-        ) : null}
-
-        {hasValue(department.teachingSummary) ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionTeaching}</h2>
-            </div>
-            {renderRichBlock(department.teachingSummary)}
-          </section>
-        ) : null}
-
-        {hasValue(department.researchSummary) ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionResearch}</h2>
-            </div>
-            {renderRichBlock(department.researchSummary)}
-          </section>
-        ) : null}
-
-        {department.disciplines?.length ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionDisciplines}</h2>
-            </div>
-            <div className="department-discipline-grid">
-              {department.disciplines.map((item, index) => (
-                <article key={`${item.title}-${index}`} className="department-discipline-card">
-                  <h3>{item.title}</h3>
-                  {hasValue(item.details) ? <p>{item.details}</p> : null}
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {head || hasValue(department.headNote) ? (
-          <section className="department-section-card department-head-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionHead}</h2>
-            </div>
-
-            {head ? (
-              <div className="department-head-person">
-                {head.photo?.url ? (
-                  <img
-                    className="department-head-photo"
-                    src={getStrapiMediaUrl(head.photo.url)}
-                    alt={head.photo.alternativeText || head.fullName}
-                  />
-                ) : (
-                  <div className="department-head-photo department-head-photo-placeholder">
-                    {head.fullName?.slice(0, 1)}
-                  </div>
-                )}
-                <div className="department-head-copy">
-                  <h3>{head.fullName}</h3>
-                  <p className="meta-line">{head.position || head.roleInDepartment || t.noPosition}</p>
-                  {head.slug ? (
-                    <Link className="inline-link" href={`/${locale}/persons/${head.slug}`}>
-                      {t.personProfileOpen}
-                    </Link>
-                  ) : null}
-                </div>
+        {facts.length ? (
+          <div className="department-facts-grid department-academic-facts">
+            {facts.map((item, index) => (
+              <div key={`${item.label}-${index}`} className="department-fact-card">
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
               </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div className={`department-academic-layout${hasSideContent ? '' : ' single-column'}`}>
+          <main className="department-main-column">
+            {hasValue(aboutContent) ? (
+              <section className="department-section-card">
+                <div className="section-header department-card-heading">
+                  <p className="kicker">{t.departmentSectionAbout}</p>
+                  <h2>{t.departmentSectionAbout}</h2>
+                </div>
+                {renderRichBlock(aboutContent)}
+              </section>
             ) : null}
 
-            {hasValue(department.headNote)
-              ? renderRichBlock(department.headNote, null, 'prose-content compact-prose')
-              : null}
-          </section>
-        ) : null}
-
-        {department.usefulLinks?.length ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionLinks}</h2>
-            </div>
-            <div className="department-resource-list">
-              {department.usefulLinks.map((item, index) => (
-                <a
-                  key={`${item.title}-${index}`}
-                  className="department-resource-card"
-                  href={item.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <h3>{item.title}</h3>
-                  {hasValue(item.description) ? <p>{item.description}</p> : null}
-                </a>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {department.documents?.length ? (
-          <section className="department-section-card">
-            <div className="section-header">
-              <h2>{t.departmentSectionDocuments}</h2>
-            </div>
-            <div className="department-resource-list">
-              {department.documents.map((item, index) => {
-                const fileUrl = getStrapiMediaUrl(item.file?.url);
-
-                return (
-                  <a
-                    key={`${item.title}-${index}`}
-                    className="department-resource-card"
-                    href={fileUrl || '#'}
-                    target={fileUrl ? '_blank' : undefined}
-                    rel={fileUrl ? 'noreferrer' : undefined}
-                  >
-                    <h3>{item.title}</h3>
-                    {hasValue(item.description) ? <p>{item.description}</p> : null}
-                    <span className="inline-link">{fileUrl ? t.openFile : t.fileNotAttached}</span>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
-
-        {extraSections.length
-          ? extraSections.map((section, index) => (
-              <section key={`${section.__component}-${index}`} className="department-section-card">
-                <div className="section-header">
-                  <h2>{section.title}</h2>
+            {hasValue(department.teachingSummary) || hasValue(department.researchSummary) ? (
+              <section className="department-section-card">
+                <div className="section-header department-card-heading">
+                  <h2>{t.departmentSectionTeaching} / {t.departmentSectionResearch}</h2>
                 </div>
-                {renderRichBlock(section.content)}
+                {renderRichBlock(department.teachingSummary)}
+                {renderRichBlock(department.researchSummary)}
               </section>
-            ))
-          : null}
-      </div>
+            ) : null}
 
-      <section id="department-staff" className="department-section-card">
-        <div className="section-header">
+            {extraSections.length
+              ? extraSections.map((section, index) => (
+                  <section key={`${section.__component}-${index}`} className="department-section-card">
+                    <div className="section-header department-card-heading">
+                      <h2>{section.title}</h2>
+                    </div>
+                    {renderRichBlock(section.content)}
+                  </section>
+                ))
+              : null}
+          </main>
+
+          {hasSideContent ? (
+            <aside className="department-side-column">
+              {hasHead ? (
+                <section className="department-section-card department-head-card">
+                  <div className="section-header department-card-heading">
+                    <h2>{t.departmentSectionHead}</h2>
+                  </div>
+
+                  {head ? (
+                    <div className="department-head-person">
+                      {head.photo?.url ? (
+                        <img
+                          className="department-head-photo"
+                          src={getStrapiMediaUrl(head.photo.url)}
+                          alt={head.photo.alternativeText || head.fullName}
+                        />
+                      ) : (
+                        <div className="department-head-photo department-head-photo-placeholder">
+                          {head.fullName?.slice(0, 1)}
+                        </div>
+                      )}
+                      <div className="department-head-copy">
+                        <h3>{head.fullName}</h3>
+                        <p className="meta-line">{head.position || head.roleInDepartment || t.noPosition}</p>
+                        {head.slug ? (
+                          <Link className="inline-link" href={`/${locale}/persons/${head.slug}`}>
+                            {t.personProfileOpen}
+                          </Link>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {hasValue(department.headNote)
+                    ? renderRichBlock(department.headNote, null, 'prose-content compact-prose')
+                    : null}
+                </section>
+              ) : null}
+
+              {hasDisciplines ? (
+                <section className="department-section-card">
+                  <div className="section-header department-card-heading">
+                    <h2>{t.departmentSectionDisciplines}</h2>
+                  </div>
+                  <div className="department-discipline-grid department-academic-discipline-list">
+                    {department.disciplines.map((item, index) => (
+                      <article key={`${item.title}-${index}`} className="department-discipline-card">
+                        <h3>{item.title}</h3>
+                        {hasValue(item.details) ? <p>{item.details}</p> : null}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {hasLinks
+                ? linkGroups.map((group) => (
+                    <section key={group.title} className="department-section-card department-resource-section">
+                      <div className="section-header department-card-heading">
+                        <h2>{group.title}</h2>
+                        {hasValue(group.intro) ? <p className="meta-line">{group.intro}</p> : null}
+                      </div>
+                      <div className="department-resource-list">
+                        {group.items.map((item, index) => (
+                          <a
+                            key={`${group.title}-${item.title}-${index}`}
+                            className="department-resource-card"
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <h3>{item.title}</h3>
+                            {hasValue(item.description) ? <p>{item.description}</p> : null}
+                          </a>
+                        ))}
+                      </div>
+                    </section>
+                  ))
+                : null}
+
+              {hasDocuments ? (
+                <section className="department-section-card">
+                  <div className="section-header department-card-heading">
+                    <h2>{t.departmentSectionDocuments}</h2>
+                  </div>
+                  <div className="department-resource-list">
+                    {department.documents?.map((item, index) => {
+                      const fileUrl = getStrapiMediaUrl(item.file?.url);
+
+                      return (
+                        <a
+                          key={`document-${item.title}-${index}`}
+                          className="department-resource-card"
+                          href={fileUrl || '#'}
+                          target={fileUrl ? '_blank' : undefined}
+                          rel={fileUrl ? 'noreferrer' : undefined}
+                        >
+                          <h3>{item.title}</h3>
+                          {hasValue(item.description) ? <p>{item.description}</p> : null}
+                          <span className="inline-link">{fileUrl ? t.openFile : t.fileNotAttached}</span>
+                        </a>
+                      );
+                    })}
+                    {materials.map((item, index) => {
+                      const fileUrl = getStrapiMediaUrl(item.file?.url);
+
+                      return (
+                        <a
+                          key={`material-${item.title}-${index}`}
+                          className="department-resource-card"
+                          href={fileUrl || `/${locale}/materials`}
+                          target={fileUrl ? '_blank' : undefined}
+                          rel={fileUrl ? 'noreferrer' : undefined}
+                        >
+                          <h3>{item.title}</h3>
+                          {hasValue(item.description) ? <p>{item.description}</p> : null}
+                          <span className="inline-link">{fileUrl ? t.openFile : t.materialsTitle}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
+            </aside>
+          ) : null}
+        </div>
+
+        <div className="department-hero-actions department-academic-actions">
+          <Link className="button-secondary" href={`/${locale}/departments`}>
+            {t.departments}
+          </Link>
+          {department.email ? (
+            <a className="button-primary" href={`mailto:${department.email}`}>
+              {t.departmentContactAction}
+            </a>
+          ) : null}
+          {department.persons?.length ? (
+            <a className="button-secondary" href="#department-staff">
+              {t.departmentEmployeesTitle}
+            </a>
+          ) : null}
+        </div>
+      </section>
+
+      <section id="department-staff" className="department-section-card department-academic-staff-section">
+        <div className="section-header department-card-heading">
           <h2>{t.departmentEmployeesTitle}</h2>
         </div>
         {department.persons?.length ? (

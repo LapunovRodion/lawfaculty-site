@@ -51,5 +51,10 @@ For local Docker bind-mount permissions, set `HOST_UID` and `HOST_GID` in `.env`
 - Release deploy procedure: `runbooks/release-deploy.md`
 - Rollback procedure: `runbooks/rollback.md`
 - Content migration: `docs/content-migration-plan.md`
+- News content template: `docs/news-content-template.md`
+- Old site inventory: `docs/old-site-inventory.md`
+- Migration map: `docs/migration-map.md`
+- Old news import helper: `scripts/import-old-news.mjs`
+- Old departments import helper: `scripts/import-old-departments.mjs`
 - Structured schedule: `docs/schedule-model.md`
 - Auto-translation: `docs/i18n-autotranslation.md`

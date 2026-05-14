@@ -26,6 +26,8 @@ Migration tooling should use this order:
 - documented read-only insecure fetch fallback only for migration inventory/import, never for production runtime.
 
 ## Migration Map
+Initial artifact: `docs/migration-map.md`.
+
 Use this table format while importing:
 
 | Source URL | Source Type | Target Type | Target ID | Locale | Status | Notes |
@@ -43,13 +45,29 @@ Statuses:
 ## News Import
 Scope: 10 latest news items.
 
+Import helper: `scripts/import-old-news.mjs`.
+
+Dry run:
+```bash
+OLD_SITE_INSECURE_TLS=1 node scripts/import-old-news.mjs
+```
+
+Create Strapi drafts:
+```bash
+STRAPI_API_TOKEN=<token> OLD_SITE_INSECURE_TLS=1 node scripts/import-old-news.mjs --commit
+```
+
+`--commit` requires a Strapi API token with permissions to create `News` entries and upload media. Imported news are created as drafts with `submissionStatus = draft` for review.
+
 Fields to import:
 - title;
 - slug;
 - excerpt when available;
 - content/body;
 - cover/inline images;
-- publication date;
+- publication date into `displayDate`;
+- category and department relation when applicable;
+- gallery images and attachments when available;
 - source URL in migration log.
 
 Post-import checks:
@@ -60,6 +78,18 @@ Post-import checks:
 - Meilisearch `news` index is refreshed.
 
 ## Departments Import
+Import helper: `scripts/import-old-departments.mjs`.
+
+Dry run:
+```bash
+OLD_SITE_INSECURE_TLS=1 node scripts/import-old-departments.mjs
+```
+
+Create Strapi drafts:
+```bash
+STRAPI_API_TOKEN=<token> OLD_SITE_INSECURE_TLS=1 node scripts/import-old-departments.mjs --commit
+```
+
 Fields to import:
 - title;
 - slug;
@@ -117,6 +147,8 @@ Post-import checks:
 - global search finds the material by title, department, and PDF text when extractable.
 
 ## Placeholder Cleanup
+These rules are fixed for launch scope.
+
 During migration, remove or replace:
 - `#` links;
 - fake phone/email/address values;
@@ -125,6 +157,8 @@ During migration, remove or replace:
 - empty contact/action sections.
 
 Fallback empty-state text is allowed only when a section is genuinely empty.
+
+If a real value is unavailable, hide the field/block instead of publishing a visible placeholder.
 
 ## Acceptance Criteria
 - 10 latest news items are imported and reviewed.

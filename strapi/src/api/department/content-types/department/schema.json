@@ -187,6 +187,18 @@
       "relation": "oneToMany",
       "target": "api::material.material",
       "mappedBy": "department"
+    },
+    "news": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::news-item.news-item",
+      "mappedBy": "department"
+    },
+    "sourceUrl": {
+      "type": "text"
+    },
+    "sourceCategory": {
+      "type": "string"
     }
   }
 }

@@ -5,8 +5,21 @@ const { errors } = require('@strapi/utils');
 const TYPE_CONFIG = {
   news: {
     uid: 'api::news-item.news-item',
-    editableFields: ['title', 'slug', 'excerpt', 'content', 'cover', 'locale'],
-    mediaFields: ['cover'],
+    editableFields: [
+      'title',
+      'slug',
+      'excerpt',
+      'content',
+      'cover',
+      'gallery',
+      'attachments',
+      'displayDate',
+      'category',
+      'department',
+      'locale',
+    ],
+    mediaFields: ['cover', 'gallery', 'attachments'],
+    relationFields: ['department'],
     summaryField: 'title',
   },
   materials: {

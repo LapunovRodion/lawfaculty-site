@@ -57,6 +57,51 @@
       "required": false,
       "allowedTypes": ["images"]
     },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["files"]
+    },
+    "displayDate": {
+      "type": "datetime"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "faculty",
+        "department",
+        "education",
+        "science",
+        "student_life",
+        "event",
+        "announcement",
+        "other"
+      ],
+      "default": "faculty"
+    },
+    "department": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::department.department",
+      "inversedBy": "news"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "sourceUrl": {
+      "type": "text"
+    },
+    "sourceCategory": {
+      "type": "string"
+    },
     "submissionStatus": {
       "type": "enumeration",
       "enum": ["draft", "submitted", "needs_changes", "approved", "rejected", "published"],

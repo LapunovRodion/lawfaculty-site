@@ -31,10 +31,21 @@ Payload:
     "excerpt": "Short text",
     "content": "Long text",
     "cover": 123,
+    "gallery": [124, 125],
+    "attachments": [126],
+    "displayDate": "2026-05-12T09:00:00.000Z",
+    "category": "faculty",
+    "department": 12,
     "locale": "ru"
   }
 }
 ```
+
+Rules:
+- `title` and `content` are required by the public editorial template;
+- `displayDate` is the public date used for news sorting; if empty, the frontend falls back to Strapi publish/update timestamps;
+- `category` must be one of `faculty`, `department`, `education`, `science`, `student_life`, `event`, `announcement`, `other`;
+- `department` is optional and should be set for department-specific news.
 
 ## Material Endpoints
 - `POST /materials` - create draft.

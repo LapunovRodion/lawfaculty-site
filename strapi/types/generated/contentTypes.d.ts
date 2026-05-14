@@ -512,6 +512,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
       'api::department.department'
     >;
     materials: Schema.Attribute.Relation<'oneToMany', 'api::material.material'>;
+    news: Schema.Attribute.Relation<'oneToMany', 'api::news-item.news-item'>;
     office: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -540,6 +541,8 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    sourceCategory: Schema.Attribute.String;
+    sourceUrl: Schema.Attribute.Text;
     tagline: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -662,10 +665,24 @@ export interface ApiNewsItemNewsItem extends Struct.CollectionTypeSchema {
     };
   };
   attributes: {
+    attachments: Schema.Attribute.Media<'files', true>;
     authorUser: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    category: Schema.Attribute.Enumeration<
+      [
+        'faculty',
+        'department',
+        'education',
+        'science',
+        'student_life',
+        'event',
+        'announcement',
+        'other',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'faculty'>;
     content: Schema.Attribute.RichText &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -676,12 +693,19 @@ export interface ApiNewsItemNewsItem extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    department: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::department.department'
+    >;
+    displayDate: Schema.Attribute.DateTime;
     excerpt: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }>;
+    gallery: Schema.Attribute.Media<'images', true>;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -696,6 +720,8 @@ export interface ApiNewsItemNewsItem extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    sourceCategory: Schema.Attribute.String;
+    sourceUrl: Schema.Attribute.Text;
     submissionStatus: Schema.Attribute.Enumeration<
       [
         'draft',
